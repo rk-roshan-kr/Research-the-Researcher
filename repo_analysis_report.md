@@ -18,24 +18,24 @@ The repository consists of five core autonomous modules orchestrated by the mast
 
 ```mermaid
 graph TD
-    A[CLI / run.py] --> B[Pipeline Orchestrator]
-    B --> C[Identity Resolver]
-    B --> D[Deduplication Engine]
-    B --> E[Crawler & Social Profiler]
-    B --> F[PDF Downloader & Analyzer]
-    B --> G[Collaboration Graph Builder]
-    B --> H[Report Generator]
+    A["CLI / run.py"] --> B["Pipeline Orchestrator"]
+    B --> C["Identity Resolver"]
+    B --> D["Deduplication Engine"]
+    B --> E["Crawler & Social Profiler"]
+    B --> F["PDF Downloader & Analyzer"]
+    B --> G["Collaboration Graph Builder"]
+    B --> H["Report Generator"]
 
-    C --> |API queries| OpenAlex[OpenAlex & Semantic Scholar APIs]
-    C --> |HTML Scraping| GoogleScholar[Google Scholar Scraper]
+    C -->|"API queries"| OpenAlex["OpenAlex & Semantic Scholar APIs"]
+    C -->|"HTML Scraping"| GoogleScholar["Google Scholar Scraper"]
     
-    D --> |Stage 1| Bloom[Bloom Filter]
-    D --> |Stage 2| LSH[MinHash LSH]
-    D --> |Stage 3| FAISS[FAISS Vector Index]
+    D -->|"Stage 1"| Bloom["Bloom Filter"]
+    D -->|"Stage 2"| LSH["MinHash LSH"]
+    D -->|"Stage 3"| FAISS["FAISS Vector Index"]
 
-    E --> |Discovery| Search[Local Search Client / SearxNG]
-    E --> |Crawl| Crawl[Async BFS Crawler / crawl4ai]
-    E --> |LLM Summary| Ollama[Local LLM Client / Ollama]
+    E -->|"Discovery"| Search["Local Search Client / SearxNG"]
+    E -->|"Crawl"| Crawl["Async BFS Crawler / crawl4ai"]
+    E -->|"LLM Summary"| Ollama["Local LLM Client / Ollama"]
 ```
 
 ### 2.1 Identity Resolution & Aggregation

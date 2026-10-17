@@ -34,30 +34,30 @@ Given a simple query (researcher name, ORCID, Google Scholar URL, or Semantic Sc
 
 ```mermaid
 graph TD
-    A[CLI / Web App] --> B[Pipeline Orchestrator]
-    B --> C[Identity Resolver]
-    B --> D[Cascading Dedup Engine]
-    B --> E[Crawler & Social Profiler]
-    B --> F[PDF Downloader & Analyzer]
-    B --> G[Collaboration Graph Builder]
-    B --> H[Report Generator]
+    A["CLI / Web App"] --> B["Pipeline Orchestrator"]
+    B --> C["Identity Resolver"]
+    B --> D["Cascading Dedup Engine"]
+    B --> E["Crawler & Social Profiler"]
+    B --> F["PDF Downloader & Analyzer"]
+    B --> G["Collaboration Graph Builder"]
+    B --> H["Report Generator"]
 
-    C --> |API queries| OpenAlex[OpenAlex & Semantic Scholar APIs]
-    C --> |HTML Scraping| GoogleScholar[Google Scholar Scraper]
+    C -->|"API queries"| OpenAlex["OpenAlex & Semantic Scholar APIs"]
+    C -->|"HTML Scraping"| GoogleScholar["Google Scholar Scraper"]
     
-    D --> |Stage 1: O(1)| Bloom[MurmurHash3 Bloom Filter]
-    D --> |Stage 2: O(n)| LSH[MinHash LSH Trigrams]
-    D --> |Stage 3: O(log n)| FAISS[FAISS Vector Index]
+    D -->|"Stage 1: O(1)"| Bloom["MurmurHash3 Bloom Filter"]
+    D -->|"Stage 2: O(n)"| LSH["MinHash LSH Trigrams"]
+    D -->|"Stage 3: O(log n)"| FAISS["FAISS Vector Index"]
 
-    E --> |Discovery| Search[Local SearxNG / DuckDuckGo]
-    E --> |Crawl| Crawl[Async Priority BFS / crawl4ai]
-    E --> |Local LLM| Ollama[Ollama Client / Qwen]
+    E -->|"Discovery"| Search["Local SearxNG / DuckDuckGo"]
+    E -->|"Crawl"| Crawl["Async Priority BFS / crawl4ai"]
+    E -->|"Local LLM"| Ollama["Ollama Client / Qwen"]
 
-    F --> |Layout-Aware| PyMuPDF[PyMuPDF Double-Column Parser]
-    F --> |Structured Out| Pydantic[Pydantic JSON Schemas]
+    F -->|"Layout-Aware"| PyMuPDF["PyMuPDF Double-Column Parser"]
+    F -->|"Structured Out"| Pydantic["Pydantic JSON Schemas"]
 
-    G --> |Max-Heap Queue| PriorityBFS[Priority BFS by h-index]
-    G --> |Clustering| DSU[Disjoint Set Union / Union-Find]
+    G -->|"Max-Heap Queue"| PriorityBFS["Priority BFS by h-index"]
+    G -->|"Clustering"| DSU["Disjoint Set Union / Union-Find"]
 ```
 
 ### Key Modules
