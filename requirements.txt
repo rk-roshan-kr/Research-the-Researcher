@@ -1,0 +1,49 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Research-the-Researcher — Dependencies
+# Fully local stack: no Gemini/OpenAI API keys required.
+# ──────────────────────────────────────────────────────────────────────────────
+
+# ── Web / HTTP ────────────────────────────────────────────────────────────────
+requests>=2.31.0
+aiohttp>=3.10.0
+aiolimiter>=1.2.0           # asyncio token-bucket rate limiter
+
+# ── HTML Parsing / Scraping ───────────────────────────────────────────────────
+beautifulsoup4>=4.12.0
+lxml>=6.0.4
+
+# ── Async web crawling (Playwright-backed, JS rendering) ─────────────────────
+# (Installed via setup.py to bypass lxml C compiler errors on Python 3.14)
+# After setup, playwright install chromium is run automatically.
+
+# ── PDF Processing ────────────────────────────────────────────────────────────
+pypdf>=4.0.0
+pymupdf>=1.24.0
+
+# ── Local LLM (Ollama) ───────────────────────────────────────────────────────
+ollama>=0.4.0               # Ollama Python client
+pydantic>=2.0.0             # Schema validation for structured JSON output
+
+# ── Deduplication Engine ─────────────────────────────────────────────────────
+xxhash>=3.4.0               # Fastest exact hash for DOI/ArXiv dedup
+mmh3>=4.0.0                 # MurmurHash3 for Bloom filter
+bitarray>=2.9.0             # Compact bit array (256 KB Bloom filter storage)
+datasketch>=1.6.0           # MinHash LSH for near-duplicate title detection
+
+# ── Semantic Embeddings + FAISS ───────────────────────────────────────────────
+sentence-transformers>=3.0.0  # Local GPU-accelerated embedding model
+# Install ONE of the following depending on your CUDA setup:
+faiss-cpu>=1.8.0            # CPU fallback
+# faiss-gpu>=1.8.0          # GPU version (requires CUDA; comment out faiss-cpu above)
+
+# ── Report Generation ────────────────────────────────────────────────────────
+jinja2>=3.1.2
+rich>=13.7.0
+markdown>=3.5.0
+
+# ── Data Structures ───────────────────────────────────────────────────────────
+sortedcontainers>=2.4.0     # SortedList / SortedDict
+
+# ── Utilities ────────────────────────────────────────────────────────────────
+python-dotenv>=1.0.0        # Load .env files for optional config
+tenacity>=8.2.3             # Retry logic with exponential backoff

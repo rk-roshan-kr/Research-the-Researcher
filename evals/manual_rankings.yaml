@@ -1,0 +1,209 @@
+# Manual rankings for EarthOS / TARS collaboration evaluation
+#
+# SCORING GUIDE
+#   5 = perfect fit — work directly addresses an active investigation blocker
+#   4 = strong fit  — significant topic or method overlap with EarthOS/TARS
+#   3 = moderate    — related area, meaningful but indirect overlap
+#   2 = weak        — adjacent field, limited connection
+#   1 = no fit      — different research domain entirely
+#
+# ACTIVE INVESTIGATIONS (for reference while scoring):
+#   INV-1: Does curriculum ordering affect long-term cognitive coherence in EarthOS?
+#          Blockers: CKA/RSA dataset, coherence measurement methodology
+#   INV-2: Why does TARS prediction error not decrease monotonically during training?
+#          Blockers: theoretical framework for non-monotonic active inference learning curves
+#   INV-3: What specificity threshold separates useful from useless research blockers?
+#          Blockers: labeled blocker quality dataset
+#
+# HOW TO RUN:
+#   python evaluate_rankings.py \
+#       --corpus outputs/self_corpus.json \
+#       --dossiers outputs/batch_profile_results.json \
+#       --manual evals/manual_rankings.yaml --no-llm
+#
+# TARGET: Kendall τ > 0.5 on this set = system producing measurable signal
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ═══════════════════════════════════════════════════════════════════
+# TIER 1 — EarthOS / Cognitive Architecture / Active Inference
+# Expected: scores 4-5. ENRS should fire strongly here.
+# ═══════════════════════════════════════════════════════════════════
+
+- name: "Karl Friston"
+  manual_score: 5
+  notes: >
+    Free energy principle / active inference pioneer. FEP is the theoretical
+    foundation of TARS generative model. Non-monotonic learning curves under
+    FEP are directly studied in his group. Resolves INV-2 blocker directly.
+
+- name: "Randall O'Reilly"
+  manual_score: 5
+  notes: >
+    Leabra / predictive error-driven learning in biological neural networks.
+    Directly relevant to INV-2 (non-monotonic prediction error curves).
+    CKA-style representation analysis used extensively.
+
+- name: "Chris Eliasmith"
+  manual_score: 5
+  notes: >
+    Neural Engineering Framework, Spaun. Persistent cognitive architectures,
+    investigation-like structured reasoning. Strong method overlap (NEF vs EarthOS).
+    Has published on curriculum and temporal coherence.
+
+- name: "Jeff Hawkins"
+  manual_score: 4
+  notes: >
+    Thousand Brains theory, HTM. Strong conceptual alignment with EarthOS
+    investigation persistence. Less empirical methodology overlap (no CKA/RSA).
+    Industry not academia — accessibility lower.
+
+- name: "Andy Clark"
+  manual_score: 4
+  notes: >
+    Predictive processing, extended mind. Directly theorizes about active inference
+    and cognitive coherence across time. Philosophical rather than empirical —
+    blocker resolution less direct.
+
+- name: "Michael Levin"
+  manual_score: 4
+  notes: >
+    Bioelectric cognition, morphogenetic intelligence. Non-standard view of
+    persistent investigation in biological systems. Highly relevant to EarthOS
+    investigation persistence concept. Unconventional methodology.
+
+- name: "Martin Schrimpf"
+  manual_score: 4
+  notes: >
+    Brain-score, representational similarity. RSA/CKA methodology is exactly
+    what INV-1 needs. Would directly help design the coherence measurement
+    methodology blocker.
+
+- name: "Alexander Mathis"
+  manual_score: 3
+  notes: >
+    DeepLabCut, pose estimation in neuroscience. Strong empirical methodology.
+    Adjacent to EarthOS — uses representation analysis but on motor systems.
+    Less direct connection to cognitive coherence or active inference.
+
+# ═══════════════════════════════════════════════════════════════════
+# TIER 2 — Machine Learning / Representation Learning
+# Expected: scores 2-4. Topic overlap but ENRS likely low.
+# ═══════════════════════════════════════════════════════════════════
+
+- name: "Yoshua Bengio"
+  manual_score: 3
+  notes: >
+    Strong on representation learning and GFlowNets (relevant to active inference).
+    Not focused on cognitive architectures or curriculum-ordered investigations.
+    High prestige may cause system to over-rank via accessibility.
+
+- name: "Dileep George"
+  manual_score: 4
+  notes: >
+    Recursive Cortical Network, Numenta alum. Cortical column models with
+    investigation-like hierarchical inference. Strong conceptual alignment.
+    Industry (Vicarious) — accessibility may be low.
+
+- name: "Kenneth Stanley"
+  manual_score: 3
+  notes: >
+    NEAT, open-endedness, novelty search. Directly relevant to investigation
+    persistence and open-ended exploration. Less relevant to TARS prediction error.
+
+- name: "Percy Liang"
+  manual_score: 2
+  notes: >
+    Foundation models, HELM benchmark. Strong on evaluation methodology —
+    potentially relevant to INV-3 (blocker specificity). No active inference.
+
+- name: "Sergey Levine"
+  manual_score: 2
+  notes: >
+    Offline RL, robot learning. Curriculum learning papers exist but in robotics
+    context. Methodology gap with CKA/RSA. ENRS unlikely to fire.
+
+- name: "Fei-Fei Li"
+  manual_score: 1
+  notes: >
+    Computer vision, ImageNet. High prestige, no conceptual connection to
+    EarthOS/TARS. System should score low — good test of prestige resistance.
+
+- name: "Gary Marcus"
+  manual_score: 2
+  notes: >
+    Symbolic AI critic, hybrid architectures. Philosophical alignment with
+    EarthOS limitations of pure neural approaches. No empirical methods overlap.
+
+# ═══════════════════════════════════════════════════════════════════
+# TIER 3 — Astronomy / TARS (exoplanets, habitability)
+# Expected: scores vary. ENRS should be 0 — test of specificity.
+# ═══════════════════════════════════════════════════════════════════
+
+- name: "David Kipping"
+  manual_score: 3
+  notes: >
+    Exomoon detection, Bayesian inference in transit photometry. If TARS
+    applies to astronomical data, Kipping's Bayesian methodology is relevant.
+    Depends on whether TARS blocker is about inference methods.
+
+- name: "Sara Seager"
+  manual_score: 3
+  notes: >
+    Exoplanet atmospheres, biosignatures. If TARS investigates habitability,
+    strong fit. If TARS is purely about cognitive architecture, score drops to 1.
+    Context-dependent — flagged for review.
+
+- name: "Jessie Christiansen"
+  manual_score: 2
+  notes: >
+    Kepler/K2 occurrence rates. Statistical analysis of planetary populations.
+    Methodology (occurrence rate estimation) potentially relevant if TARS
+    involves population-level reasoning.
+
+- name: "Andrew Vanderburg"
+  manual_score: 2
+  notes: >
+    Machine learning for exoplanet detection, TESS. Interesting ML-astronomy
+    bridge but not cognitive architecture. Low ENRS expected.
+
+- name: "Chelsea Huang"
+  manual_score: 2
+  notes: >
+    TESS planet candidate vetting. Transit timing, data pipeline. Relevant only
+    if TARS is about astronomical data pipelines specifically.
+
+- name: "Eric Agol"
+  manual_score: 3
+  notes: >
+    Transit timing variations, TRAPPIST-1 characterization. Bayesian inference
+    methods are strong. If TARS involves Bayesian model updates, relevant.
+
+# ═══════════════════════════════════════════════════════════════════
+# TIER 4 — Prestige traps (test of ENRS resistance)
+# Expected: scores 1-2. System should NOT over-rank these.
+# ═══════════════════════════════════════════════════════════════════
+
+- name: "Jiajun Wu"
+  manual_score: 1
+  notes: >
+    Computer vision, physical reasoning. Stanford. Active. High citations.
+    Zero EarthOS/TARS relevance. Validated: system gave 21.8/100. Good signal.
+
+- name: "Yann LeCun"
+  manual_score: 2
+  notes: >
+    Deep learning pioneer, JEPA (Joint Embedding Predictive Architecture).
+    JEPA has some conceptual overlap with predictive processing. Not active inference.
+    Would over-rank in prestige-based systems. Good discrimination test.
+
+- name: "Geoffrey Hinton"
+  manual_score: 2
+  notes: >
+    Capsule networks, Boltzmann machines. Some historical relevance to
+    predictive processing. No active inference work. Prestige trap.
+
+- name: "Andrew Ng"
+  manual_score: 1
+  notes: >
+    ML education, applied ML. Zero EarthOS/TARS relevance. High prestige.
+    System must score this low for ENRS to be validated as working.

@@ -1,0 +1,69 @@
+# ==============================================================================
+# Research-the-Researcher — .gitignore
+# ==============================================================================
+
+# Private & User Data (Strictly Excluded)
+my-work/
+email/
+scratch/
+outputs/
+*.log
+*.sqlite
+*.sqlite3
+*.db
+*.csv
+*.xlsx
+*.docx
+
+# Python Bytecode & Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing & Linting
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+
+# Node & Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+
+# IDEs & OS Files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+Desktop.ini

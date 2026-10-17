@@ -1,0 +1,308 @@
+{
+  "correlation": {
+    "kendall_tau": 1.0,
+    "spearman_rho": 1.0
+  },
+  "tier_accuracy": {
+    "4": {
+      "mean": 21.5,
+      "std": 0.0,
+      "n": 1,
+      "names": [
+        "Martin Schrimpf"
+      ]
+    },
+    "3": {
+      "mean": 18.3,
+      "std": 0.0,
+      "n": 1,
+      "names": [
+        "Alexander Mathis"
+      ]
+    },
+    "1": {
+      "mean": 16.8,
+      "std": 0.0,
+      "n": 1,
+      "names": [
+        "Jiajun Wu"
+      ]
+    }
+  },
+  "professors": [
+    {
+      "name": "Martin Schrimpf",
+      "manual_score": 4.0,
+      "system_score": 21.51,
+      "notes": "Brain-score, representational similarity. RSA/CKA methodology is exactly what INV-1 needs. Would directly help design the coherence measurement methodology blocker.\n",
+      "dimensions": {
+        "enrs": {
+          "raw": 0.0,
+          "weight": 0.3,
+          "contribution": 0.0,
+          "reasoning": "No professor papers matched any unresolved blockers above threshold.",
+          "evidence": [
+            {
+              "blocker_description": "Empirical dataset comparing representation geometry under different curriculum o",
+              "best_similarity": 0.369,
+              "note": "Below threshold (0.55), no resolution"
+            },
+            {
+              "blocker_description": "Validated methodology for measuring coherence in open-ended investigation sequen",
+              "best_similarity": 0.3148,
+              "note": "Below threshold (0.55), no resolution"
+            }
+          ]
+        },
+        "topic_overlap": {
+          "raw": 0.2862,
+          "weight": 0.2,
+          "contribution": 5.72,
+          "reasoning": "Low topic overlap (cosine=0.29). Distant fields.",
+          "evidence": [
+            {
+              "cosine_similarity": 0.2862,
+              "note": "topic centroid vs. professor centroid"
+            }
+          ]
+        },
+        "gap_complement": {
+          "raw": 0.0,
+          "weight": 0.2,
+          "contribution": 0.0,
+          "reasoning": "Open question '' best addressed by '' (sim=0.00)",
+          "evidence": [
+            {
+              "note": "No open_questions or professor papers"
+            }
+          ]
+        },
+        "method_compat": {
+          "raw": 0.2862,
+          "weight": 0.15,
+          "contribution": 4.29,
+          "reasoning": "Low method overlap (cosine=0.29). Complementary toolkits.",
+          "evidence": [
+            {
+              "method_similarity": 0.2862,
+              "user_methods": [],
+              "prof_methods": [],
+              "shared_methods": []
+            }
+          ]
+        },
+        "lab_access": {
+          "raw": 0.65,
+          "weight": 0.1,
+          "contribution": 6.5,
+          "reasoning": "Lab accessibility score=0.65 for unknown position.",
+          "evidence": [
+            {
+              "signal": "h-index=0 (junior)",
+              "delta": 0.15
+            }
+          ]
+        },
+        "temporal_act": {
+          "raw": 1.0,
+          "weight": 0.05,
+          "contribution": 5.0,
+          "reasoning": "Most recent publication: 2026. Activity score=1.00.",
+          "evidence": [
+            {
+              "most_recent_paper_year": 2026,
+              "years_since_last_paper": 0,
+              "score": 1.0
+            }
+          ]
+        }
+      },
+      "gap": 2.9245
+    },
+    {
+      "name": "Alexander Mathis",
+      "manual_score": 3.0,
+      "system_score": 18.33,
+      "notes": "DeepLabCut, pose estimation in neuroscience. Strong empirical methodology. Adjacent to EarthOS — uses representation analysis but on motor systems. Less direct connection to cognitive coherence or active inference.\n",
+      "dimensions": {
+        "enrs": {
+          "raw": 0.0,
+          "weight": 0.3,
+          "contribution": 0.0,
+          "reasoning": "No professor papers matched any unresolved blockers above threshold.",
+          "evidence": [
+            {
+              "blocker_description": "Empirical dataset comparing representation geometry under different curriculum o",
+              "best_similarity": 0.319,
+              "note": "Below threshold (0.55), no resolution"
+            },
+            {
+              "blocker_description": "Validated methodology for measuring coherence in open-ended investigation sequen",
+              "best_similarity": 0.257,
+              "note": "Below threshold (0.55), no resolution"
+            }
+          ]
+        },
+        "topic_overlap": {
+          "raw": 0.195,
+          "weight": 0.2,
+          "contribution": 3.9,
+          "reasoning": "Low topic overlap (cosine=0.20). Distant fields.",
+          "evidence": [
+            {
+              "cosine_similarity": 0.195,
+              "note": "topic centroid vs. professor centroid"
+            }
+          ]
+        },
+        "gap_complement": {
+          "raw": 0.0,
+          "weight": 0.2,
+          "contribution": 0.0,
+          "reasoning": "Open question '' best addressed by '' (sim=0.00)",
+          "evidence": [
+            {
+              "note": "No open_questions or professor papers"
+            }
+          ]
+        },
+        "method_compat": {
+          "raw": 0.195,
+          "weight": 0.15,
+          "contribution": 2.93,
+          "reasoning": "Low method overlap (cosine=0.20). Complementary toolkits.",
+          "evidence": [
+            {
+              "method_similarity": 0.195,
+              "user_methods": [],
+              "prof_methods": [],
+              "shared_methods": []
+            }
+          ]
+        },
+        "lab_access": {
+          "raw": 0.65,
+          "weight": 0.1,
+          "contribution": 6.5,
+          "reasoning": "Lab accessibility score=0.65 for unknown position.",
+          "evidence": [
+            {
+              "signal": "h-index=0 (junior)",
+              "delta": 0.15
+            }
+          ]
+        },
+        "temporal_act": {
+          "raw": 1.0,
+          "weight": 0.05,
+          "contribution": 5.0,
+          "reasoning": "Most recent publication: 2026. Activity score=1.00.",
+          "evidence": [
+            {
+              "most_recent_paper_year": 2026,
+              "years_since_last_paper": 0,
+              "score": 1.0
+            }
+          ]
+        }
+      },
+      "gap": 2.0835
+    },
+    {
+      "name": "Jiajun Wu",
+      "manual_score": 1.0,
+      "system_score": 16.77,
+      "notes": "Computer vision, physical reasoning. Stanford. Active. High citations. Zero EarthOS/TARS relevance. Validated: system gave 21.8/100. Good signal.\n",
+      "dimensions": {
+        "enrs": {
+          "raw": 0.0,
+          "weight": 0.3,
+          "contribution": 0.0,
+          "reasoning": "No professor papers matched any unresolved blockers above threshold.",
+          "evidence": [
+            {
+              "blocker_description": "Empirical dataset comparing representation geometry under different curriculum o",
+              "best_similarity": 0.3312,
+              "note": "Below threshold (0.55), no resolution"
+            },
+            {
+              "blocker_description": "Validated methodology for measuring coherence in open-ended investigation sequen",
+              "best_similarity": 0.2717,
+              "note": "Below threshold (0.55), no resolution"
+            }
+          ]
+        },
+        "topic_overlap": {
+          "raw": 0.1505,
+          "weight": 0.2,
+          "contribution": 3.01,
+          "reasoning": "Low topic overlap (cosine=0.15). Distant fields.",
+          "evidence": [
+            {
+              "cosine_similarity": 0.1505,
+              "note": "topic centroid vs. professor centroid"
+            }
+          ]
+        },
+        "gap_complement": {
+          "raw": 0.0,
+          "weight": 0.2,
+          "contribution": 0.0,
+          "reasoning": "Open question '' best addressed by '' (sim=0.00)",
+          "evidence": [
+            {
+              "note": "No open_questions or professor papers"
+            }
+          ]
+        },
+        "method_compat": {
+          "raw": 0.1505,
+          "weight": 0.15,
+          "contribution": 2.26,
+          "reasoning": "Low method overlap (cosine=0.15). Complementary toolkits.",
+          "evidence": [
+            {
+              "method_similarity": 0.1505,
+              "user_methods": [],
+              "prof_methods": [],
+              "shared_methods": []
+            }
+          ]
+        },
+        "lab_access": {
+          "raw": 0.65,
+          "weight": 0.1,
+          "contribution": 6.5,
+          "reasoning": "Lab accessibility score=0.65 for unknown position.",
+          "evidence": [
+            {
+              "signal": "h-index=0 (junior)",
+              "delta": 0.15
+            }
+          ]
+        },
+        "temporal_act": {
+          "raw": 1.0,
+          "weight": 0.05,
+          "contribution": 5.0,
+          "reasoning": "Most recent publication: 2025. Activity score=1.00.",
+          "evidence": [
+            {
+              "most_recent_paper_year": 2025,
+              "years_since_last_paper": 1,
+              "score": 1.0
+            }
+          ]
+        }
+      },
+      "gap": 0.16149999999999998
+    }
+  ],
+  "metadata": {
+    "n_evaluated": 3,
+    "n_total_manual": 25,
+    "elapsed_s": 13.2,
+    "model_hash": "5cc58f42119195bc",
+    "timestamp": "20260613_154608"
+  }
+}

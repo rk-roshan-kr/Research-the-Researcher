@@ -1,0 +1,3588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Operations Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root {
+            --bg-base: #060713;
+            --bg-surface: #0b0c1e;
+            --bg-card: rgba(18, 20, 43, 0.55);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(139, 92, 246, 0.4);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            /* Curated HSL Color Scheme */
+            --accent-violet: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --accent-amber: #f59e0b;
+            
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'Fira Code', monospace;
+            
+            --glow-violet: rgba(139, 92, 246, 0.12);
+            --glow-cyan: rgba(6, 182, 212, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            line-height: 1.5;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 5% 5%, var(--glow-violet) 0%, transparent 35%),
+                radial-gradient(circle at 95% 95%, var(--glow-cyan) 0%, transparent 35%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header & Navigation styling */
+        header {
+            background: rgba(11, 12, 30, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .logo h1 {
+            font-family: var(--font-display);
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 40%, var(--accent-violet) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            width: 320px;
+        }
+
+        .search-container input {
+            width: 100%;
+            background: rgba(4, 4, 12, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem 1rem 0.5rem 2.2rem;
+            color: #ffffff;
+            font-size: 0.875rem;
+            font-family: var(--font-body);
+            transition: all 0.2s ease;
+        }
+
+        .search-container input:focus {
+            outline: none;
+            border-color: var(--accent-violet);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+            width: 380px;
+        }
+
+        .search-container svg {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            min-width: 380px;
+            background: var(--bg-surface);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            margin-top: 0.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+            z-index: 2000;
+        }
+
+        .search-result-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-result-item:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .search-result-item .result-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .search-result-item .result-sub {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.15rem;
+        }
+
+        /* Tier-1 Nav Tabs */
+        .tier1-nav {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(6, 7, 19, 0.6);
+            padding: 0.25rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-tab {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.5rem 1.25rem;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-tab:hover {
+            color: #ffffff;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .nav-tab.active {
+            background: var(--accent-violet);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+        }
+
+        /* KPI widgets top bar */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1rem;
+            padding: 1.5rem 2rem 0.5rem 2rem;
+            width: 100%;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 80px;
+            backdrop-filter: blur(10px);
+        }
+
+        .kpi-val {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .kpi-lbl {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .kpi-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent-violet);
+            opacity: 0.4;
+        }
+
+        .kpi-card:nth-child(2)::after { background: var(--accent-rose); }
+        .kpi-card:nth-child(3)::after { background: var(--accent-cyan); }
+        .kpi-card:nth-child(4)::after { background: var(--accent-emerald); }
+        .kpi-card:nth-child(5)::after { background: var(--accent-amber); }
+        .kpi-card:nth-child(6)::after { background: var(--accent-violet); }
+        .kpi-card:nth-child(7)::after { background: var(--accent-cyan); }
+
+        /* Content containers */
+        main {
+            flex-grow: 1;
+            padding: 1rem 2rem 2rem 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-container {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .panel-container.active {
+            display: flex;
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .panel-header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 0.75rem;
+        }
+
+        .panel-title {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Sub Navigation tabs within panels */
+        .sub-nav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 0.5rem;
+        }
+
+        .sub-tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.4rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .sub-tab-btn:hover {
+            color: #ffffff;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .sub-tab-btn.active {
+            background: rgba(139, 92, 246, 0.15);
+            color: #ffffff;
+            border: 1px solid rgba(139, 92, 246, 0.25);
+        }
+
+        /* Grid systems */
+        .grid-3col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 1.5rem;
+        }
+
+        /* Lists and widgets */
+        .list-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .stack-item {
+            background: rgba(8, 9, 21, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .stack-item:hover {
+            border-color: var(--border-hover);
+            transform: translateX(2px);
+        }
+
+        .stack-item.active {
+            border-color: var(--accent-violet);
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            height: 10px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+            border: 1px solid rgba(255,255,255,0.02);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan));
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+
+        /* Action Queue & Command Center categories */
+        .command-center-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .cc-col {
+            background: rgba(8, 9, 21, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            min-height: 400px;
+        }
+
+        .cc-header {
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #ffffff;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cc-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .cc-utility {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            font-size: 0.72rem;
+            background: rgba(6, 182, 212, 0.12);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(6, 182, 212, 0.25);
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .cc-card-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #ffffff;
+            max-width: calc(100% - 40px);
+        }
+
+        .cc-card-reason {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        .cc-why-btn {
+            background: transparent;
+            border: none;
+            color: var(--accent-violet);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            align-self: flex-start;
+            padding: 0.15rem 0;
+        }
+
+        .cc-why-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* Detail panel views */
+        .detail-view-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 1rem;
+        }
+
+        .detail-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .detail-desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Timeline styling */
+        .timeline-container {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding-left: 20px;
+            margin-top: 1rem;
+        }
+
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 5px;
+            width: 2px;
+            height: 100%;
+            background: rgba(255,255,255,0.06);
+        }
+
+        .timeline-node {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+
+        .timeline-node::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: -19px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent-violet);
+            box-shadow: 0 0 8px var(--accent-violet);
+            border: 2px solid var(--bg-base);
+        }
+
+        .timeline-date {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        .timeline-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 0.15rem;
+        }
+
+        .timeline-desc {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            margin-top: 0.15rem;
+        }
+
+        /* Evidence Board */
+        .evidence-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .eb-col {
+            background: rgba(8, 9, 21, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            min-height: 250px;
+        }
+
+        .eb-header {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #ffffff;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .eb-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.50rem;
+            font-size: 0.8rem;
+        }
+
+        /* Kanban columns */
+        .pipeline-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+        }
+
+        .pipeline-col {
+            background: rgba(8, 9, 21, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .pipeline-header {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .pipeline-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pipeline-card:hover {
+            border-color: var(--accent-violet);
+        }
+
+        .pipeline-card-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .pipeline-card-sub {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.15rem;
+        }
+
+        .pipeline-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.35rem;
+            margin-top: 0.5rem;
+        }
+
+        .pipeline-act-btn {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .pipeline-act-btn:hover {
+            color: #ffffff;
+            background: var(--accent-violet);
+            border-color: var(--accent-violet);
+        }
+
+        /* Buttons & Forms */
+        .btn-primary {
+            background: var(--accent-violet);
+            color: #ffffff;
+            border: none;
+            padding: 0.5rem 1.25rem;
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .btn-primary:hover {
+            background: #9b6bf7;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 1.25rem;
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.03);
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        .form-control {
+            background: rgba(4, 4, 12, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.6rem 0.85rem;
+            color: #ffffff;
+            width: 100%;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-violet);
+            background: rgba(8, 8, 20, 0.8);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        /* Interactive Graph View styling */
+        #graph-view-wrapper {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: #030308;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        #graph-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .graph-sidebar {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 320px;
+            background: rgba(11, 12, 30, 0.9);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            max-height: calc(100% - 2rem);
+            overflow-y: auto;
+            backdrop-filter: blur(12px);
+            z-index: 10;
+            display: none;
+        }
+
+        /* Tooltip details popup */
+        .tooltip-card {
+            position: fixed;
+            background: rgba(11, 12, 30, 0.95);
+            border: 1px solid rgba(139, 92, 246, 0.35);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            max-width: 300px;
+            font-size: 0.8rem;
+        }
+
+        /* Accountability popup modal */
+        .explain-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(3, 3, 7, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .explain-modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .explain-container {
+            background: var(--bg-surface);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 450px;
+            padding: 1.5rem;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+        }
+
+        .explain-header {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 0.5rem;
+        }
+
+        .explain-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .explain-val {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        /* Blocker Validation Red Warning box */
+        .vague-warning-box {
+            background: rgba(244, 63, 94, 0.08);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            color: var(--accent-rose);
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        /* Tabs layout styling */
+        .tab-badge {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-secondary);
+            border-radius: 4px;
+            padding: 0.1rem 0.4rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .tab-badge.badge-red { background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); }
+        .tab-badge.badge-cyan { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); }
+        .tab-badge.badge-green { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
+
+        /* General status badges */
+        .badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+        }
+
+        .badge-active { background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.2); }
+        .badge-blocked { background: rgba(244, 63, 94, 0.15); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.2); }
+        .badge-resolved { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .badge-queued { background: rgba(100, 116, 139, 0.15); color: #cbd5e1; border: 1px solid rgba(100, 116, 139, 0.2); }
+
+        /* Detail table */
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+            margin-top: 1rem;
+        }
+
+        .detail-table th, .detail-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-table th {
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .detail-table tr:hover td {
+            background: rgba(255,255,255,0.01);
+        }
+
+        /* Modals and general overlays */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(3, 3, 7, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-backdrop.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-container {
+            background: var(--bg-surface);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header bar -->
+    <header>
+        <div class="header-left">
+            <div class="logo">
+                <h1>Research Operations Center</h1>
+            </div>
+            <!-- Global Search bar -->
+            <div class="search-container">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="global-search" placeholder="Search CEBRA, Mathis, Curriculum, etc..." autocomplete="off">
+                <div id="search-results-dropdown" class="search-dropdown"></div>
+            </div>
+        </div>
+
+        <!-- Tier 1 Navigation Tabs -->
+        <nav class="tier1-nav">
+            <button class="nav-tab active" onclick="switchTab('operations')">
+                <svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                Operations
+            </button>
+            <button class="nav-tab" onclick="switchTab('investigations')">
+                <svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                Investigations
+            </button>
+            <button class="nav-tab" onclick="switchTab('discovery')">
+                <svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                Discovery
+            </button>
+            <button class="nav-tab" onclick="switchTab('relationships')">
+                <svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Relationships
+            </button>
+            <button class="nav-tab" onclick="switchTab('intelligence')">
+                <svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                Intelligence
+            </button>
+        </nav>
+    </header>
+
+    <!-- Top KPI row -->
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="kpi-val" id="kpi-active-invs">0</div>
+            <div class="kpi-lbl">Active Invs</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-val" id="kpi-open-blockers">0</div>
+            <div class="kpi-lbl">Open Blockers</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-val" id="kpi-programs-indexed">0</div>
+            <div class="kpi-lbl">Programs Indexed</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-val" id="kpi-profs-contacted">0</div>
+            <div class="kpi-lbl">PIs Contacted</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-val" id="kpi-replies-received">0</div>
+            <div class="kpi-lbl">Replies Received</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-val" id="kpi-active-convs">0</div>
+            <div class="kpi-lbl">Active Convs</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-val" id="kpi-intern-candidates">0</div>
+            <div class="kpi-lbl">Intern Candidates</div>
+        </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <main>
+
+        <!-- Operations Panel -->
+        <div id="panel-operations" class="panel-container active">
+            <div class="sub-nav">
+                <button class="sub-tab-btn active" onclick="switchSubView('operations', 'home')">Home Dashboard</button>
+                <button class="sub-tab-btn" onclick="switchSubView('operations', 'command')">Command Center</button>
+                <button class="sub-tab-btn" onclick="switchSubView('operations', 'action')">Action Queue</button>
+            </div>
+
+            <!-- Home Dashboard View -->
+            <div id="sub-operations-home" class="sub-view grid-3col">
+                <!-- Active Investigations -->
+                <div class="glass-panel">
+                    <div class="panel-title">
+                        <svg style="width:18px;height:18px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                        Investigations
+                    </div>
+                    <div class="list-stack" id="home-invs-list" style="margin-top:1rem;">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- Intelligence Feed -->
+                <div class="glass-panel">
+                    <div class="panel-title">
+                        <svg style="width:18px;height:18px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 6v6l4 2"></path></svg>
+                        Intelligence Feed
+                    </div>
+                    <div class="list-stack" id="home-intelligence-feed" style="margin-top:1rem;">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- Action Queue -->
+                <div class="glass-panel">
+                    <div class="panel-title">
+                        <svg style="width:18px;height:18px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        Action Queue
+                    </div>
+                    <div class="list-stack" id="home-action-queue" style="margin-top:1rem;">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Command Center View -->
+            <div id="sub-operations-command" class="sub-view command-center-grid" style="display:none;">
+                <!-- Research Category -->
+                <div class="cc-col">
+                    <div class="cc-header">
+                        <svg style="width:16px;height:16px;color:var(--accent-cyan);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        Research
+                    </div>
+                    <div class="list-stack" id="cc-research-list"></div>
+                </div>
+                <!-- Outreach Category -->
+                <div class="cc-col">
+                    <div class="cc-header">
+                        <svg style="width:16px;height:16px;color:var(--accent-violet);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        Outreach
+                    </div>
+                    <div class="list-stack" id="cc-outreach-list"></div>
+                </div>
+                <!-- Experiments Category -->
+                <div class="cc-col">
+                    <div class="cc-header">
+                        <svg style="width:16px;height:16px;color:var(--accent-rose);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        Experiments
+                    </div>
+                    <div class="list-stack" id="cc-experiments-list"></div>
+                </div>
+                <!-- Writing Category -->
+                <div class="cc-col">
+                    <div class="cc-header">
+                        <svg style="width:16px;height:16px;color:var(--accent-amber);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        Writing
+                    </div>
+                    <div class="list-stack" id="cc-writing-list"></div>
+                </div>
+            </div>
+
+            <!-- Action Queue view -->
+            <div id="sub-operations-action" class="sub-view glass-panel" style="display:none;">
+                <div class="panel-title">Relationship follow-up alerts and replies due</div>
+                <div class="table-wrapper" style="margin-top:1rem; overflow-x:auto;">
+                    <table class="detail-table">
+                        <thead>
+                            <tr>
+                                <th>Professor</th>
+                                <th>Investigation</th>
+                                <th>Subject</th>
+                                <th>Follow-up Due</th>
+                                <th>Next Action</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="action-queue-table-body">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Investigations Panel -->
+        <div id="panel-investigations" class="panel-container">
+            <div class="sub-nav">
+                <button class="sub-tab-btn active" onclick="switchSubView('investigations', 'workspace')">Investigation Workspace</button>
+                <button class="sub-tab-btn" onclick="switchSubView('investigations', 'board')">Evidence Board</button>
+                <button class="sub-tab-btn" onclick="switchSubView('investigations', 'outcomes')">Outcome Tracker</button>
+            </div>
+
+            <!-- Workspace View -->
+            <div id="sub-investigations-workspace" class="sub-view grid-2col">
+                <!-- Left: List of Investigations -->
+                <div class="glass-panel">
+                    <div class="panel-header-actions">
+                        <div class="panel-title">Investigations</div>
+                        <button class="btn-primary" onclick="openNewInvModal()">+ New Investigation</button>
+                    </div>
+                    <div class="list-stack" id="inv-workspace-list">
+                        <!-- List -->
+                    </div>
+                </div>
+
+                <!-- Right: Dedicated Investigation detail workspace -->
+                <div class="glass-panel" id="inv-details-pane">
+                    <div id="inv-no-selection" class="empty-state">
+                        <h3>Select an investigation stream</h3>
+                        <p>Choose an investigation from the sidebar to open its workspace cockpit.</p>
+                    </div>
+                    <div id="inv-workspace-details" class="detail-view-container" style="display:none;">
+                        <div class="detail-header">
+                            <div>
+                                <h2 class="detail-title" id="inv-detail-title">EarthOS</h2>
+                                <p class="detail-desc" id="inv-detail-desc"></p>
+                            </div>
+                            <div>
+                                <span class="badge badge-active" id="inv-detail-status">Active</span>
+                            </div>
+                        </div>
+
+                        <!-- Progress Section -->
+                        <div>
+                            <label>Progress to resolution</label>
+                            <div class="progress-bar-container">
+                                <div class="progress-fill" id="inv-detail-progress" style="width: 62%;"></div>
+                            </div>
+                            <span id="inv-detail-progress-lbl" style="font-size:0.8rem; font-family:var(--font-mono)">62% Completed</span>
+                        </div>
+
+                        <!-- Grid: Claims vs Blockers -->
+                        <div class="grid-2col">
+                            <div>
+                                <label>Strong Claims</label>
+                                <div class="list-stack" id="inv-detail-claims" style="margin-top:0.25rem;"></div>
+                                
+                                <label style="display:block; margin-top:1rem;">Open Questions</label>
+                                <div class="list-stack" id="inv-detail-questions" style="margin-top:0.25rem;"></div>
+                            </div>
+                            <div>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <label>Research Blockers</label>
+                                    <button class="pipeline-act-btn" style="padding: 0.1rem 0.4rem;" onclick="openNewBlockerModal()">+ Blocker</button>
+                                </div>
+                                <div class="list-stack" id="inv-detail-blockers" style="margin-top:0.25rem;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Timeline & Connected Programs -->
+                        <div class="grid-2col" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top:1.5rem;">
+                            <div>
+                                <label>Connected Programs</label>
+                                <div class="list-stack" id="inv-detail-programs" style="margin-top:0.25rem;"></div>
+                            </div>
+                            <div>
+                                <label>Investigation Timeline</label>
+                                <div class="timeline-container" id="inv-detail-timeline"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evidence Board View -->
+            <div id="sub-investigations-board" class="sub-view glass-panel" style="display:none;">
+                <div class="panel-header-actions">
+                    <div class="panel-title">Evidence Board</div>
+                    <div style="font-size:0.8rem; color:var(--text-secondary)">No professors listed here. Purely focused on evidence gaps.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="eb-inv-select">Investigation</label>
+                    <select id="eb-inv-select" class="form-control" style="max-width:300px;" onchange="loadEvidenceBoard()"></select>
+                </div>
+
+                <div class="evidence-board">
+                    <!-- Column 1: Needed -->
+                    <div class="eb-col">
+                        <div class="eb-header" style="color:var(--accent-rose)">Evidence Gaps (Needed)</div>
+                        <div class="list-stack" id="eb-needed-list"></div>
+                    </div>
+                    <!-- Column 2: Found -->
+                    <div class="eb-col">
+                        <div class="eb-header" style="color:var(--accent-emerald)">Evidence Found</div>
+                        <div class="list-stack" id="eb-found-list"></div>
+                    </div>
+                    <!-- Column 3: Missing -->
+                    <div class="eb-col">
+                        <div class="eb-header" style="color:var(--accent-amber)">Missing Capabilities</div>
+                        <div class="list-stack" id="eb-missing-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Outcome Tracker View -->
+            <div id="sub-investigations-outcomes" class="sub-view glass-panel" style="display:none;">
+                <div class="panel-header-actions">
+                    <div class="panel-title">Outcome Tracker</div>
+                    <button class="btn-primary" onclick="openLogOutcomeModal()">Log Research Outcome</button>
+                </div>
+                <div class="table-wrapper" style="overflow-x:auto;">
+                    <table class="detail-table">
+                        <thead>
+                            <tr>
+                                <th>Professor</th>
+                                <th>Investigation</th>
+                                <th>Suggestion</th>
+                                <th>Contribution Type</th>
+                                <th>Impact Score</th>
+                                <th>Artifact</th>
+                                <th>Implementation Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="outcome-tracker-table-body">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Discovery Panel -->
+        <div id="panel-discovery" class="panel-container">
+            <div class="sub-nav">
+                <button class="sub-tab-btn active" onclick="switchSubView('discovery', 'programs')">Program Discovery</button>
+                <button class="sub-tab-btn" onclick="switchSubView('discovery', 'profs')">Professor Dossiers</button>
+            </div>
+
+            <!-- Program Discovery View -->
+            <div id="sub-discovery-programs" class="sub-view grid-2col">
+                <!-- Left Sidebar: Universities list -->
+                <div class="glass-panel">
+                    <div class="panel-title">Universities</div>
+                    <div class="list-stack" id="disc-uni-list" style="margin-top:1rem;">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- Right: Programs clustered -->
+                <div class="glass-panel">
+                    <div class="panel-title" id="disc-uni-title">EPFL Programs</div>
+                    <div class="list-stack" id="disc-programs-list" style="margin-top:1rem;">
+                        <!-- Programs list -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professor Dossiers View -->
+            <div id="sub-discovery-profs" class="sub-view grid-2col" style="display:none;">
+                <!-- Left Sidebar: Professors list -->
+                <div class="glass-panel">
+                    <div class="panel-title">Profiled PIs</div>
+                    <div class="list-stack" id="disc-profs-list" style="margin-top:1rem;">
+                        <!-- list -->
+                    </div>
+                </div>
+
+                <!-- Right: Professor Dossier details -->
+                <div class="glass-panel" id="prof-dossier-pane">
+                    <div id="prof-no-selection" class="empty-state">
+                        <h3>Select a professor</h3>
+                        <p>Choose a profiled researcher from the sidebar to inspect their complete research dossier.</p>
+                    </div>
+                    <div id="prof-dossier-details" class="detail-view-container" style="display:none;">
+                        <div class="detail-header">
+                            <div>
+                                <h2 class="detail-title" id="prof-detail-name">Alexander Mathis</h2>
+                                <p class="detail-desc" id="prof-detail-inst">EPFL</p>
+                            </div>
+                            <div style="text-align:right;">
+                                <span class="badge badge-active" id="prof-detail-status">In Conversation</span>
+                            </div>
+                        </div>
+
+                        <!-- KPI scores with tooltips -->
+                        <div class="grid-3col">
+                            <div class="kpi-card" style="cursor:help;" onclick="showAccountabilityModal('research_utility')">
+                                <div class="kpi-val" id="prof-detail-utility">84</div>
+                                <div class="kpi-lbl">Research Utility <span style="font-size:0.6rem; color:var(--accent-violet)">Explain</span></div>
+                            </div>
+                            <div class="kpi-card" style="cursor:help;" onclick="showAccountabilityModal('internship_probability')">
+                                <div class="kpi-val" id="prof-detail-intern-prob">71%</div>
+                                <div class="kpi-lbl">Intern Probability <span style="font-size:0.6rem; color:var(--accent-cyan)">Explain</span></div>
+                            </div>
+                            <div class="kpi-card" style="cursor:help;" onclick="showAccountabilityModal('accessibility')">
+                                <div class="kpi-val" id="prof-detail-accessibility">62</div>
+                                <div class="kpi-lbl">Accessibility <span style="font-size:0.6rem; color:var(--accent-emerald)">Explain</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Clustered Programs vs Claims -->
+                        <div class="grid-2col">
+                            <div>
+                                <label>Clustered Programs</label>
+                                <div class="list-stack" id="prof-detail-programs" style="margin-top:0.25rem;"></div>
+                            </div>
+                            <div>
+                                <label>Relevant Claims</label>
+                                <div class="list-stack" id="prof-detail-claims" style="margin-top:0.25rem;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Timeline & History -->
+                        <div style="border-top:1px solid rgba(255,255,255,0.05); padding-top:1.5rem;">
+                            <label>Interaction & Research History</label>
+                            <div class="timeline-container" id="prof-detail-timeline"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Relationships Panel -->
+        <div id="panel-relationships" class="panel-container">
+            <div class="sub-nav">
+                <button class="sub-tab-btn active" onclick="switchSubView('relationships', 'pipeline')">Outreach Pipeline</button>
+                <button class="sub-tab-btn" onclick="switchSubView('relationships', 'tension')">Tension Studio</button>
+            </div>
+
+            <!-- Outreach Pipeline View -->
+            <div id="sub-relationships-pipeline" class="sub-view pipeline-board">
+                <!-- Columns: Drafted, Sent, Replied, Testing Suggestion, Dormant -->
+                <div class="pipeline-col">
+                    <div class="pipeline-header" style="color:var(--accent-violet)">Drafted</div>
+                    <div class="list-stack" id="pipeline-drafted"></div>
+                </div>
+                <div class="pipeline-col">
+                    <div class="pipeline-header" style="color:var(--accent-cyan)">Sent</div>
+                    <div class="list-stack" id="pipeline-sent"></div>
+                </div>
+                <div class="pipeline-col">
+                    <div class="pipeline-header" style="color:var(--accent-emerald)">Replied</div>
+                    <div class="list-stack" id="pipeline-replied"></div>
+                </div>
+                <div class="pipeline-col">
+                    <div class="pipeline-header" style="color:var(--accent-amber)">Testing Suggestion</div>
+                    <div class="list-stack" id="pipeline-testing"></div>
+                </div>
+                <div class="pipeline-col">
+                    <div class="pipeline-header" style="color:var(--text-muted)">Dormant</div>
+                    <div class="list-stack" id="pipeline-dormant"></div>
+                </div>
+            </div>
+
+            <!-- Tension Studio View -->
+            <div id="sub-relationships-tension" class="sub-view glass-panel" style="display:none; max-width:800px; margin:0 auto; width:100%;">
+                <div class="panel-header-actions">
+                    <div class="panel-title">Tension Studio</div>
+                </div>
+
+                <div class="grid-2col">
+                    <div class="form-group">
+                        <label for="tension-inv">Investigation</label>
+                        <select id="tension-inv" class="form-control" onchange="loadBlockersForTension()"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tension-blocker">Unresolved Blocker</label>
+                        <select id="tension-blocker" class="form-control"></select>
+                    </div>
+                </div>
+
+                <div class="grid-2col">
+                    <div class="form-group">
+                        <label for="tension-prof">Professor / PI</label>
+                        <select id="tension-prof" class="form-control" onchange="loadPapersForTension()"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tension-paper">Professor's Program / Paper</label>
+                        <select id="tension-paper" class="form-control"></select>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="detectTension()" style="margin-top:0.5rem; align-self:flex-start;">Detect Tension & Generate Question</button>
+
+                <!-- Logical Progression Outputs -->
+                <div id="tension-progression-view" style="display:none; margin-top:2rem; border-top:1px solid rgba(255,255,255,0.05); padding-top:1.5rem; display:flex; flex-direction:column; gap:1.25rem;">
+                    <div>
+                        <label style="color:var(--accent-cyan)">Our Claim (Assumption)</label>
+                        <div class="stack-item" style="margin-top:0.25rem;" id="ts-our-claim">Ordering changes representation formation.</div>
+                    </div>
+                    <div>
+                        <label style="color:var(--accent-amber)">Their Claim</label>
+                        <div class="stack-item" style="margin-top:0.25rem;" id="ts-their-claim">Geometry emerges from neural dynamics.</div>
+                    </div>
+                    <div>
+                        <label style="color:var(--accent-rose)">Detected Contradiction (Tension)</label>
+                        <div class="stack-item" style="margin-top:0.25rem; border-color:rgba(244,63,94,0.3); background:rgba(244,63,94,0.02);" id="ts-contradiction">Representation geometry may emerge independently of curriculum ordering.</div>
+                    </div>
+                    <div class="grid-2col">
+                        <div>
+                            <label>Missing Evidence</label>
+                            <div class="stack-item" style="margin-top:0.25rem;" id="ts-missing-evidence">Long-term longitudinal measurements of CKA trajectories.</div>
+                        </div>
+                        <div>
+                            <label>Potential Experiment</label>
+                            <div class="stack-item" style="margin-top:0.25rem;" id="ts-experiment">Train online learners on random ordering vs curriculum and measure latent geometry.</div>
+                        </div>
+                    </div>
+                    <div>
+                        <label style="color:var(--accent-emerald)">Generated Question</label>
+                        <textarea class="form-control" id="ts-generated-question" rows="3" style="font-family:monospace; margin-top:0.25rem;"></textarea>
+                    </div>
+                    <button class="btn-primary" onclick="saveTensionInteraction()" style="align-self:flex-end;">Save Draft to Outreach Pipeline</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Intelligence Panel -->
+        <div id="panel-intelligence" class="panel-container">
+            <div class="sub-nav">
+                <button class="sub-tab-btn active" onclick="switchSubView('intelligence', 'graph')">Research Graph</button>
+                <button class="sub-tab-btn" onclick="switchSubView('intelligence', 'self')">Self Model</button>
+            </div>
+
+            <!-- Research Graph View -->
+            <div id="sub-intelligence-graph" class="sub-view" style="width:100%; height:100%;">
+                <div id="graph-view-wrapper">
+                    <svg id="graph-canvas"></svg>
+
+                    <!-- Sidebar showing node details -->
+                    <div class="graph-sidebar" id="graph-node-details">
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem; margin-bottom:1rem;">
+                            <h3 id="graph-sidebar-type" style="font-family:var(--font-display); font-size:0.8rem; text-transform:uppercase; color:var(--accent-violet);">Investigation</h3>
+                            <button onclick="closeGraphSidebar()" style="background:transparent; border:none; color:white; font-size:1.2rem; cursor:pointer;">&times;</button>
+                        </div>
+                        <h2 id="graph-sidebar-label" style="font-family:var(--font-display); font-size:1.2rem; font-weight:700; color:white; margin-bottom:0.75rem;">EarthOS</h2>
+                        <div id="graph-sidebar-content" style="font-size:0.82rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:0.75rem;">
+                            <!-- Node properties injected -->
+                        </div>
+                        <div id="graph-sidebar-action" style="margin-top:1.5rem; border-top:1px solid rgba(255,255,255,0.05); padding-top:1rem;">
+                            <!-- Action button linking to workspace -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Self Model View -->
+            <div id="sub-intelligence-self" class="sub-view grid-2col" style="display:none;">
+                <!-- Left: stats & claims -->
+                <div class="glass-panel">
+                    <div class="panel-title">Research Identity</div>
+                    <div class="grid-3col" style="margin-top:1rem; margin-bottom:1.5rem;">
+                        <div class="kpi-card">
+                            <div class="kpi-val" id="self-claims-cnt">0</div>
+                            <div class="kpi-lbl">Claims</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-val" id="self-methods-cnt">0</div>
+                            <div class="kpi-lbl">Methods</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-val" id="self-invs-cnt">0</div>
+                            <div class="kpi-lbl">Investigations</div>
+                        </div>
+                    </div>
+
+                    <label>Assumed Research Claims</label>
+                    <div class="list-stack" id="self-claims-list" style="margin-top:0.25rem; max-height:220px; overflow-y:auto; margin-bottom:1rem;"></div>
+
+                    <label>Open Questions</label>
+                    <div class="list-stack" id="self-questions-list" style="margin-top:0.25rem; max-height:220px; overflow-y:auto;"></div>
+                </div>
+
+                <!-- Right: sub-graphs lists -->
+                <div class="glass-panel">
+                    <div class="panel-title">Methods & Contradictions</div>
+                    <div style="margin-top:1rem;">
+                        <label>Methods Employed</label>
+                        <div class="list-stack" id="self-methods-list" style="margin-top:0.25rem; max-height:200px; overflow-y:auto; margin-bottom:1.5rem;"></div>
+
+                        <label>Detected Belief Contradictions</label>
+                        <div class="list-stack" id="self-contradictions-list" style="margin-top:0.25rem; max-height:200px; overflow-y:auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Node description tooltip -->
+    <div class="tooltip-card" id="graph-tooltip"></div>
+
+    <!-- Accountability explain score modal -->
+    <div class="explain-modal" id="accountability-modal" onclick="closeAccountabilityModal()">
+        <div class="explain-container" onclick="event.stopPropagation()">
+            <div class="explain-header" id="explain-score-title">Explain Score: Research Utility</div>
+            <div id="explain-score-breakdown">
+                <!-- Breakdown rows injected -->
+            </div>
+            <button class="btn-outline" onclick="closeAccountabilityModal()" style="width:100%; margin-top:1.5rem;">Close</button>
+        </div>
+    </div>
+
+    <!-- New Investigation Modal -->
+    <div class="modal-backdrop" id="new-inv-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Create Research Investigation</h2>
+                <button onclick="closeNewInvModal()" style="background:transparent; border:none; color:white; font-size:1.2rem; cursor:pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="new-inv-title">Title</label>
+                    <input type="text" id="new-inv-title" class="form-control" placeholder="e.g. EarthOS Curriculum Ordering">
+                </div>
+                <div class="form-group">
+                    <label for="new-inv-desc">Description / Goal</label>
+                    <textarea id="new-inv-desc" class="form-control" rows="4" placeholder="Describe what this investigation stream is trying to solve..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="new-inv-priority">Base Priority (0.0 to 1.0)</label>
+                    <input type="number" id="new-inv-priority" class="form-control" min="0" max="1" step="0.1" value="0.5">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="closeNewInvModal()">Cancel</button>
+                <button class="btn-primary" onclick="submitNewInvestigation()">Initiate Stream</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Blocker Modal -->
+    <div class="modal-backdrop" id="new-blocker-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Add Research Blocker</h2>
+                <button onclick="closeNewBlockerModal()" style="background:transparent; border:none; color:white; font-size:1.2rem; cursor:pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="new-blocker-desc">Blocker Description (Be specific to pass validation)</label>
+                    <textarea id="new-blocker-desc" class="form-control" rows="4" placeholder="Detail the specific evidence gap or capability needed..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="new-blocker-type">Blocker Type</label>
+                    <select id="new-blocker-type" class="form-control">
+                        <option value="dataset">Dataset (need data collected/curated)</option>
+                        <option value="methodology">Methodology (need technique or protocol)</option>
+                        <option value="domain_knowledge">Domain Knowledge (need expertise we lack)</option>
+                        <option value="computational">Computational (need scale/infrastructure)</option>
+                        <option value="validation">Validation (need external validation)</option>
+                        <option value="theoretical">Theoretical (need formal frameworks/proofs)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="new-blocker-severity">Severity (0.0 to 1.0)</label>
+                    <input type="number" id="new-blocker-severity" class="form-control" min="0" max="1" step="0.1" value="0.7">
+                </div>
+
+                <!-- Validation warning box -->
+                <div class="vague-warning-box" id="new-blocker-validation-warning">
+                    <strong>Validation Failed:</strong> Blocker description is too vague.
+                    <p id="new-blocker-validation-message" style="margin-top:0.5rem;"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="closeNewBlockerModal()">Cancel</button>
+                <button class="btn-primary" onclick="submitNewBlocker()">Add Blocker</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resolve Blocker Modal -->
+    <div class="modal-backdrop" id="resolve-blocker-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Resolve Research Blocker</h2>
+                <button onclick="closeResolveBlockerModal()" style="background:transparent; border:none; color:white; font-size:1.2rem; cursor:pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="res-blocker-by">Resolved By (Professor Name or Paper DOI)</label>
+                    <input type="text" id="res-blocker-by" class="form-control" placeholder="e.g. Alexander Mathis">
+                </div>
+                <div class="form-group">
+                    <label for="res-blocker-strength">Evidence Strength</label>
+                    <select id="res-blocker-strength" class="form-control">
+                        <option value="published_result">Published Result (Peer-reviewed, published - strongest)</option>
+                        <option value="replicated_result">Replicated Result (Independently reproduced)</option>
+                        <option value="pilot_result">Pilot Result (Small-scale preliminary result)</option>
+                        <option value="paper_mention">Paper Mention (Referenced in passing - weakest)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="res-blocker-notes">Resolution Notes</label>
+                    <textarea id="res-blocker-notes" class="form-control" rows="3" placeholder="Notes on how this resolving paper/PI satisfies the evidence need..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="closeResolveBlockerModal()">Cancel</button>
+                <button class="btn-primary" onclick="submitResolveBlocker()">Mark Resolved</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Outcome Modal -->
+    <div class="modal-backdrop" id="outcome-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Log Research Outcome</h2>
+                <button onclick="closeLogOutcomeModal()" style="background:transparent; border:none; color:white; font-size:1.2rem; cursor:pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="outcome-inv-select">Investigation</label>
+                    <select id="outcome-inv-select" class="form-control" onchange="loadBlockersForOutcomeModal()"></select>
+                </div>
+                <div class="form-group">
+                    <label for="outcome-blocker-select">Associated Blocker</label>
+                    <select id="outcome-blocker-select" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label for="outcome-prof-select">Professor / PI</label>
+                    <select id="outcome-prof-select" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label for="outcome-suggestion">Professor's Suggestion / Recommendation</label>
+                    <textarea id="outcome-suggestion" class="form-control" rows="2" placeholder="e.g. They suggested training using the CEBRA package..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="outcome-contribution-type">Contribution Type</label>
+                    <select id="outcome-contribution-type" class="form-control">
+                        <option value="method_suggestion">Method Suggestion</option>
+                        <option value="dataset_suggestion">Dataset Suggestion</option>
+                        <option value="benchmark_suggestion">Benchmark Suggestion</option>
+                        <option value="paper_recommendation">Paper Recommendation</option>
+                        <option value="theoretical_argument">Theoretical Argument</option>
+                        <option value="collaboration_offer">Collaboration Offer</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="outcome-notes">Implementation & Testing Notes</label>
+                    <textarea id="outcome-notes" class="form-control" rows="3" placeholder="Notes on how you tested it, results, impact..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="outcome-artifact">Resulting Research Artifact</label>
+                    <input type="text" id="outcome-artifact" class="form-control" placeholder="e.g. EarthOS Report #14">
+                </div>
+                <div class="form-group">
+                    <label for="outcome-impact">Impact Score (0.0 to 1.0)</label>
+                    <input type="number" id="outcome-impact" class="form-control" min="0" max="1" step="0.1" value="0.7">
+                </div>
+                <div class="form-group" style="display:flex; align-items:center; gap:0.5rem;">
+                    <input type="checkbox" id="outcome-resolve-blocker" style="width:auto; margin-top:0;">
+                    <label for="outcome-resolve-blocker" style="margin-bottom:0;">Mark associated blocker as resolved</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="closeLogOutcomeModal()">Cancel</button>
+                <button class="btn-primary" onclick="submitLogOutcome()">Record Outcome</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripting for frontend actions and dynamic population -->
+    <script>
+        // Data variables
+        let professors = [];
+        let investigations = [];
+        let selectedInvId = null;
+        let selectedProfId = null;
+        let selectedUniName = null;
+        
+        let graphNodes = [];
+        let graphLinks = [];
+        let d3Simulation = null;
+        
+        // Active blocker state for resolution modal
+        let resolvingBlockerId = null;
+        let resolvingInvId = null;
+
+        // Initialize Web Application
+        window.addEventListener('DOMContentLoaded', () => {
+            initSearch();
+            refreshAllData();
+            
+            // Periodically refresh KPIs and command center
+            setInterval(fetchKPIs, 30000);
+            setInterval(fetchCommandCenter, 30000);
+        });
+
+        function refreshAllData() {
+            fetchKPIs();
+            fetchDashboardFeed();
+            fetchActionQueue();
+            fetchCommandCenter();
+            fetchInvestigations();
+            fetchDiscovery();
+            fetchOutreachPipeline();
+            fetchSelfModel();
+            fetchGraphData();
+        }
+
+        // Switch Tab views
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.panel-container').forEach(p => p.classList.remove('active'));
+            
+            // Find active tab and activate
+            const targetTab = Array.from(document.querySelectorAll('.nav-tab')).find(t => t.textContent.toLowerCase().includes(tabName.toLowerCase()));
+            if (targetTab) targetTab.classList.add('active');
+            
+            const targetPanel = document.getElementById(`panel-${tabName}`);
+            if (targetPanel) targetPanel.classList.add('active');
+            
+            // If intelligence tab, restart graph simulation to fit
+            if (tabName === 'intelligence') {
+                setTimeout(() => {
+                    if (d3Simulation) d3Simulation.alpha(0.3).restart();
+                }, 100);
+            }
+        }
+
+        // Switch Subviews within main tabs
+        function switchSubView(tabName, subViewName) {
+            const container = document.getElementById(`panel-${tabName}`);
+            if (!container) return;
+            
+            container.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+            container.querySelectorAll('.sub-view').forEach(view => view.style.display = 'none');
+            
+            // Find subtab button
+            const targetBtn = Array.from(container.querySelectorAll('.sub-tab-btn')).find(btn => btn.textContent.toLowerCase().includes(subViewName.toLowerCase()));
+            if (targetBtn) targetBtn.classList.add('active');
+            
+            const targetView = document.getElementById(`sub-${tabName}-${subViewName}`);
+            if (targetView) {
+                targetView.style.display = (subViewName === 'home' || subViewName === 'pipeline' || subViewName === 'board' || subViewName === 'workspace' || subViewName === 'programs' || subViewName === 'profs') ? 'grid' : 'flex';
+                if (subViewName === 'tension') targetView.style.display = 'flex';
+            }
+        }
+
+        // Fetch Mission Control KPIs
+        async function fetchKPIs() {
+            try {
+                const res = await fetch('/api/crm/kpis');
+                const data = await res.json();
+                
+                document.getElementById('kpi-active-invs').textContent = data.active_investigations;
+                document.getElementById('kpi-open-blockers').textContent = data.open_blockers;
+                document.getElementById('kpi-programs-indexed').textContent = data.programs_indexed;
+                document.getElementById('kpi-profs-contacted').textContent = data.professors_contacted;
+                document.getElementById('kpi-replies-received').textContent = data.replies_received;
+                document.getElementById('kpi-active-convs').textContent = data.active_conversations;
+                document.getElementById('kpi-intern-candidates').textContent = data.internship_candidates;
+            } catch (e) {
+                console.error("Error loading KPIs", e);
+            }
+        }
+
+        // Fetch Dashboard Feed (Operations -> Home)
+        async function fetchDashboardFeed() {
+            try {
+                // Populate Active Investigations list in Home
+                const resInvs = await fetch('/api/crm/investigations');
+                const invList = await resInvs.json();
+                investigations = invList;
+                
+                const listContainer = document.getElementById('home-invs-list');
+                listContainer.innerHTML = '';
+                
+                const active = invList.filter(i => i.status === 'active' || i.status === 'blocked');
+                if (active.length === 0) {
+                    listContainer.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">No active investigations.</div>';
+                } else {
+                    active.forEach(inv => {
+                        const openBlockers = inv.blockers.filter(b => !b.resolved).length;
+                        const totalBlockers = inv.blockers.length;
+                        const pct = totalBlockers > 0 ? Math.round(((totalBlockers - openBlockers) / totalBlockers) * 100) : 100;
+                        
+                        const item = document.createElement('div');
+                        item.className = 'stack-item';
+                        item.onclick = () => {
+                            switchTab('investigations');
+                            switchSubView('investigations', 'workspace');
+                            selectInvestigation(inv.id);
+                        };
+                        item.innerHTML = `
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <strong style="font-size:0.9rem; color:#fff;">${inv.title}</strong>
+                                <span class="badge ${inv.status === 'blocked' ? 'badge-blocked' : 'badge-active'}">${inv.status}</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-fill" style="width: ${pct}%;"></div>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-secondary);">
+                                <span>${pct}% completed</span>
+                                <span>${openBlockers} open blockers</span>
+                            </div>
+                        `;
+                        listContainer.appendChild(item);
+                    });
+                }
+
+                // Populate Intelligence Feed
+                // We'll query our graph and professor databases to synthesize alerts
+                const feedContainer = document.getElementById('home-intelligence-feed');
+                feedContainer.innerHTML = '';
+                
+                // Fetch recent events and program structures
+                const resGraph = await fetch('/api/crm/unified_graph');
+                const gdata = await resGraph.json();
+                
+                let feedItems = [];
+                
+                // Gather claims contradicted
+                const contradictions = gdata.links.filter(l => l.type === 'contradicts');
+                contradictions.forEach(c => {
+                    feedItems.push({
+                        title: "Belief Contradiction Flagged",
+                        desc: `Tension detected between our claim and their publication: ${c.details.resolution_hypothesis || 'Requires verification.'}`,
+                        type: 'red'
+                    });
+                });
+                
+                // Gather programs found
+                const programs = gdata.nodes.filter(n => n.type === 'program');
+                programs.slice(0, 3).forEach(p => {
+                    feedItems.push({
+                        title: "New Program Indexed",
+                        desc: `Clustered '${p.label}' under researcher ${p.details.professor_name} (${p.details.university}).`,
+                        type: 'cyan'
+                    });
+                });
+                
+                // Gather outcome successes
+                const outcomes = gdata.nodes.filter(n => n.type === 'outcome');
+                outcomes.slice(0, 2).forEach(o => {
+                    feedItems.push({
+                        title: "Experiment Logged",
+                        desc: `Tested suggestion: '${(o.details.suggestion || "").substring(0, 40)}...' Impact: ${o.details.impact_score}.`,
+                        type: 'green'
+                    });
+                });
+                
+                if (feedItems.length === 0) {
+                    feedContainer.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">No recent intelligence items.</div>';
+                } else {
+                    feedItems.slice(0, 6).forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'stack-item';
+                        div.style.borderLeft = `3px solid var(--accent-${item.type === 'red' ? 'rose' : item.type === 'cyan' ? 'cyan' : 'emerald'})`;
+                        div.innerHTML = `
+                            <div style="font-weight:700; font-size:0.85rem; color:#fff; display:flex; justify-content:space-between;">
+                                <span>${item.title}</span>
+                                <span class="tab-badge badge-${item.type}">${item.type.toUpperCase()}</span>
+                            </div>
+                            <div style="font-size:0.78rem; color:var(--text-secondary); margin-top:0.25rem;">${item.desc}</div>
+                        `;
+                        feedContainer.appendChild(div);
+                    });
+                }
+            } catch (e) {
+                console.error("Error loading feed", e);
+            }
+        }
+
+        // Fetch Action Queue for Home and Sub-Tab
+        async function fetchActionQueue() {
+            try {
+                const res = await fetch('/api/crm/reminders');
+                const reminders = await res.json();
+                
+                const resInts = await fetch('/api/crm/interactions');
+                const interactions = await resInts.json();
+                
+                const drafted = interactions.filter(i => i.status === 'drafted');
+                
+                // Populate Home Queue Column
+                const homeContainer = document.getElementById('home-action-queue');
+                homeContainer.innerHTML = '';
+                
+                let count = 0;
+                
+                // Display reminders due
+                reminders.forEach(rem => {
+                    count++;
+                    const div = document.createElement('div');
+                    div.className = 'stack-item';
+                    div.onclick = () => {
+                        switchTab('operations');
+                        switchSubView('operations', 'action');
+                    };
+                    div.innerHTML = `
+                        <div style="font-weight:700; font-size:0.85rem; color:#fff;">Follow up: ${rem.professor_name}</div>
+                        <div style="font-size:0.75rem; color:var(--accent-rose);">Follow-up due: ${rem.follow_up_date}</div>
+                        <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.15rem;">${rem.next_action}</div>
+                    `;
+                    homeContainer.appendChild(div);
+                });
+                
+                // Display drafted emails needing review
+                drafted.forEach(d => {
+                    count++;
+                    const div = document.createElement('div');
+                    div.className = 'stack-item';
+                    div.onclick = () => {
+                        switchTab('relationships');
+                        switchSubView('relationships', 'pipeline');
+                    };
+                    div.innerHTML = `
+                        <div style="font-weight:700; font-size:0.85rem; color:#fff;">Review Draft: ${d.professor_name}</div>
+                        <div style="font-size:0.75rem; color:var(--accent-violet);">Draft email pending review</div>
+                        <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.15rem;">Question: "${d.question.substring(0, 50)}..."</div>
+                    `;
+                    homeContainer.appendChild(div);
+                });
+                
+                if (count === 0) {
+                    homeContainer.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Action queue is empty. Clean desk!</div>';
+                }
+
+                // Populate Sub-Tab table
+                const tableBody = document.getElementById('action-queue-table-body');
+                tableBody.innerHTML = '';
+                
+                reminders.forEach(rem => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${rem.professor_name}</strong></td>
+                        <td>${rem.investigation_title}</td>
+                        <td>${rem.question.substring(0, 40)}...</td>
+                        <td style="color:var(--accent-rose); font-family:var(--font-mono)">${rem.follow_up_date}</td>
+                        <td style="font-size:0.8rem;">${rem.next_action}</td>
+                        <td>
+                            <button class="pipeline-act-btn" onclick="openReplyModal('${rem.interaction_id}', '${rem.professor_name}')">Log Reply</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+                
+                if (reminders.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted)">No relationship follow-up alerts due.</td></tr>`;
+                }
+            } catch (e) {
+                console.error("Error loading action queue", e);
+            }
+        }
+
+        // Fetch Command Center Action lists grouped
+        async function fetchCommandCenter() {
+            try {
+                const res = await fetch('/api/crm/command_center');
+                const data = await res.json();
+                
+                const renderCol = (listId, actions) => {
+                    const list = document.getElementById(listId);
+                    list.innerHTML = '';
+                    if (!actions || actions.length === 0) {
+                        list.innerHTML = '<div style="color:var(--text-muted); font-size:0.75rem;">None recommended.</div>';
+                        return;
+                    }
+                    actions.forEach(act => {
+                        const div = document.createElement('div');
+                        div.className = 'cc-card';
+                        div.innerHTML = `
+                            <span class="cc-utility">${Math.round(act.utility * 100)}%</span>
+                            <div class="cc-card-title">${act.title}</div>
+                            <div class="cc-card-reason">${act.reason}</div>
+                            <button class="cc-why-btn" onclick="openWhyExplanation('${act.title}', ${JSON.stringify(act.why)})">Why?</button>
+                        `;
+                        list.appendChild(div);
+                    });
+                };
+                
+                renderCol('cc-research-list', data.research);
+                renderCol('cc-outreach-list', data.outreach);
+                renderCol('cc-experiments-list', data.experiments);
+                renderCol('cc-writing-list', data.writing);
+            } catch (e) {
+                console.error("Error loading command center", e);
+            }
+        }
+
+        // Open Explain Score popups
+        function openWhyExplanation(title, breakdown) {
+            const modal = document.getElementById('accountability-modal');
+            document.getElementById('explain-score-title').textContent = `Action Confidence: ${title}`;
+            
+            const breakdownContainer = document.getElementById('explain-score-breakdown');
+            breakdownContainer.innerHTML = '';
+            
+            let total = 0;
+            for (const [key, val] of Object.entries(breakdown)) {
+                total += val;
+                const row = document.createElement('div');
+                row.className = 'explain-row';
+                row.innerHTML = `
+                    <span>${key}</span>
+                    <span class="explain-val">+${val}</span>
+                `;
+                breakdownContainer.appendChild(row);
+            }
+            
+            // Total Row
+            const rowTotal = document.createElement('div');
+            rowTotal.className = 'explain-row';
+            rowTotal.style.borderTop = '1px solid rgba(255,255,255,0.1)';
+            rowTotal.style.paddingTop = '0.5rem';
+            rowTotal.style.marginTop = '0.5rem';
+            rowTotal.style.fontWeight = '700';
+            rowTotal.innerHTML = `
+                <span>Total Score</span>
+                <span class="explain-val" style="color:var(--accent-violet)">${total}</span>
+            `;
+            breakdownContainer.appendChild(rowTotal);
+            
+            modal.classList.add('show');
+        }
+
+        function closeAccountabilityModal() {
+            document.getElementById('accountability-modal').classList.remove('show');
+        }
+
+        // Explain Professor Dossier score popup
+        function showAccountabilityModal(type) {
+            if (!selectedProfId) return;
+            
+            const prof = professors.find(p => p.openalex_id === selectedProfId || p.professor_name === selectedProfId);
+            if (!prof) return;
+            
+            const modal = document.getElementById('accountability-modal');
+            const breakdownContainer = document.getElementById('explain-score-breakdown');
+            breakdownContainer.innerHTML = '';
+            
+            if (type === 'research_utility') {
+                document.getElementById('explain-score-title').textContent = "Explain Research Utility Score";
+                
+                // Mock decomposition for demonstration, normally returned from collaboration_scores table
+                const enrs = Math.round(prof.last_score * 0.4 || 35.0);
+                const methods = Math.round(prof.last_score * 0.35 || 25.0);
+                const publications = Math.round(prof.last_score * 0.25 || 20.0);
+                
+                const rows = [
+                    { name: "Evidence Need Relevance Score (ENRS)", val: enrs },
+                    { name: "Methods & Topic Intersection Fit", val: methods },
+                    { name: "Historical Publication Quality Factor", val: publications }
+                ];
+                
+                rows.forEach(r => {
+                    const el = document.createElement('div');
+                    el.className = 'explain-row';
+                    el.innerHTML = `<span>${r.name}</span><span class="explain-val">+${r.val}</span>`;
+                    breakdownContainer.appendChild(el);
+                });
+                
+                const elTot = document.createElement('div');
+                elTot.className = 'explain-row';
+                elTot.style.borderTop = '1px solid rgba(255,255,255,0.1)';
+                elTot.style.paddingTop = '0.5rem';
+                elTot.style.fontWeight = '700';
+                elTot.innerHTML = `<span>Total Score</span><span class="explain-val" style="color:var(--accent-violet)">${enrs + methods + publications}</span>`;
+                breakdownContainer.appendChild(elTot);
+                
+            } else if (type === 'internship_probability') {
+                document.getElementById('explain-score-title').textContent = "Explain Internship Probability";
+                
+                // Retrieve scores dynamically
+                const accessibilityVal = Math.round((prof.student_supervision_signal + 0.5) * 50.0);
+                const readinessVal = Math.round(prof.reply_count * 15.0 + prof.outcome_count * 20.0 + 10.0);
+                
+                const accessWeight = Math.round(accessibilityVal * 0.4);
+                const readinessWeight = Math.round(readinessVal * 0.6);
+                
+                const rows = [
+                    { name: "PI Accessibility weight (40%)", val: accessWeight },
+                    { name: "CRM Collaboration Readiness (60%)", val: readinessWeight }
+                ];
+                
+                rows.forEach(r => {
+                    const el = document.createElement('div');
+                    el.className = 'explain-row';
+                    el.innerHTML = `<span>${r.name}</span><span class="explain-val">+${r.val}</span>`;
+                    breakdownContainer.appendChild(el);
+                });
+                
+                const elTot = document.createElement('div');
+                elTot.className = 'explain-row';
+                elTot.style.borderTop = '1px solid rgba(255,255,255,0.1)';
+                elTot.style.paddingTop = '0.5rem';
+                elTot.style.fontWeight = '700';
+                elTot.innerHTML = `<span>Total Score</span><span class="explain-val" style="color:var(--accent-violet)">${accessWeight + readinessWeight}%</span>`;
+                breakdownContainer.appendChild(elTot);
+                
+            } else if (type === 'accessibility') {
+                document.getElementById('explain-score-title').textContent = "Explain Accessibility Score";
+                
+                const superSignal = Math.round(prof.student_supervision_signal * 50.0);
+                const ageFactor = prof.last_publication_year && prof.last_publication_year >= 2024 ? 40 : 15;
+                
+                const rows = [
+                    { name: "Student Supervision frequency signal", val: superSignal },
+                    { name: "Temporal Publication Recency score", val: ageFactor }
+                ];
+                
+                rows.forEach(r => {
+                    const el = document.createElement('div');
+                    el.className = 'explain-row';
+                    el.innerHTML = `<span>${r.name}</span><span class="explain-val">+${r.val}</span>`;
+                    breakdownContainer.appendChild(el);
+                });
+                
+                const elTot = document.createElement('div');
+                elTot.className = 'explain-row';
+                elTot.style.borderTop = '1px solid rgba(255,255,255,0.1)';
+                elTot.style.paddingTop = '0.5rem';
+                elTot.style.fontWeight = '700';
+                elTot.innerHTML = `<span>Total Accessibility</span><span class="explain-val" style="color:var(--accent-violet)">${superSignal + ageFactor}</span>`;
+                breakdownContainer.appendChild(elTot);
+            }
+            
+            modal.classList.add('show');
+        }
+
+        // Fetch Investigations tab content
+        async function fetchInvestigations() {
+            try {
+                const res = await fetch('/api/crm/investigations');
+                const list = await res.json();
+                investigations = list;
+                
+                // Populate workspace sidebar list
+                const sideList = document.getElementById('inv-workspace-list');
+                sideList.innerHTML = '';
+                
+                list.forEach(inv => {
+                    const div = document.createElement('div');
+                    div.className = `stack-item ${inv.id === selectedInvId ? 'active' : ''}`;
+                    div.onclick = () => selectInvestigation(inv.id);
+                    div.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="color:#fff; font-size:0.85rem;">${inv.title}</strong>
+                            <span class="badge ${inv.status === 'blocked' ? 'badge-blocked' : inv.status === 'resolved' ? 'badge-resolved' : 'badge-active'}">${inv.status}</span>
+                        </div>
+                        <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem;">
+                            Priority: ${inv.effective_priority.toFixed(2)} | Blockers: ${inv.blockers.length}
+                        </div>
+                    `;
+                    sideList.appendChild(div);
+                });
+
+                // Populate selectors in modals
+                const activeInvs = list.filter(i => i.status === 'active' || i.status === 'blocked');
+                
+                const fillSelect = (selectId) => {
+                    const select = document.getElementById(selectId);
+                    if (!select) return;
+                    select.innerHTML = '';
+                    activeInvs.forEach(i => {
+                        const opt = document.createElement('option');
+                        opt.value = i.id;
+                        opt.textContent = i.title;
+                        select.appendChild(opt);
+                    });
+                };
+                
+                fillSelect('eb-inv-select');
+                fillSelect('tension-inv');
+                fillSelect('outcome-inv-select');
+                
+                // Load Board and Outcomes
+                loadEvidenceBoard();
+                fetchOutcomes();
+                
+                // If there's an active selected ID, refresh details
+                if (selectedInvId) {
+                    selectInvestigation(selectedInvId);
+                }
+            } catch (e) {
+                console.error("Error loading investigations", e);
+            }
+        }
+
+        // Select an investigation stream to view Workspace details
+        function selectInvestigation(id) {
+            selectedInvId = id;
+            
+            // Mark active in list
+            document.querySelectorAll('#inv-workspace-list .stack-item').forEach(el => el.classList.remove('active'));
+            
+            const activeItem = investigations.find(i => i.id === id);
+            if (!activeItem) return;
+            
+            document.getElementById('inv-no-selection').style.display = 'none';
+            document.getElementById('inv-workspace-details').style.display = 'flex';
+            
+            document.getElementById('inv-detail-title').textContent = activeItem.title;
+            document.getElementById('inv-detail-desc').textContent = activeItem.description;
+            
+            const statusBadge = document.getElementById('inv-detail-status');
+            statusBadge.className = `badge ${activeItem.status === 'blocked' ? 'badge-blocked' : activeItem.status === 'resolved' ? 'badge-resolved' : 'badge-active'}`;
+            statusBadge.textContent = activeItem.status;
+            
+            // Progress Calculation
+            const unresolvedBlockers = activeItem.blockers.filter(b => !b.resolved).length;
+            const totalBlockers = activeItem.blockers.length;
+            const pct = totalBlockers > 0 ? Math.round(((totalBlockers - unresolvedBlockers) / totalBlockers) * 100) : 100;
+            
+            document.getElementById('inv-detail-progress').style.width = `${pct}%`;
+            document.getElementById('inv-detail-progress-lbl').textContent = `${pct}% Completed (${totalBlockers - unresolvedBlockers}/${totalBlockers} Resolved)`;
+            
+            // Populate Claims
+            const claimsList = document.getElementById('inv-detail-claims');
+            claimsList.innerHTML = '';
+            if (activeItem.contradictions.length === 0) {
+                claimsList.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No contradictions registered.</div>';
+            } else {
+                activeItem.contradictions.forEach(c => {
+                    const el = document.createElement('div');
+                    el.className = 'stack-item';
+                    el.innerHTML = `
+                        <div style="font-weight:700; font-size:0.8rem; color:#fff;">Tension with External Source</div>
+                        <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem;">Our assumption: "${c.claim_yours}"</div>
+                        <div style="font-size:0.75rem; color:var(--accent-rose); margin-top:0.2rem;">External Claim: "${c.claim_external}" (${c.source_external})</div>
+                        <div style="font-size:0.75rem; color:var(--accent-cyan); margin-top:0.2rem;">Resolution Hypothesis: "${c.resolution_hypothesis}"</div>
+                    `;
+                    claimsList.appendChild(el);
+                });
+            }
+
+            // Open Questions
+            const qList = document.getElementById('inv-detail-questions');
+            qList.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No open questions listed.</div>';
+            
+            // Populate Blockers
+            const blockersList = document.getElementById('inv-detail-blockers');
+            blockersList.innerHTML = '';
+            if (activeItem.blockers.length === 0) {
+                blockersList.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No blockers listed. Add blockers to search for solutions.</div>';
+            } else {
+                activeItem.blockers.forEach(b => {
+                    const el = document.createElement('div');
+                    el.className = 'stack-item';
+                    el.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="font-size:0.8rem; color:#fff;">${b.description}</strong>
+                            <span class="badge ${b.resolved ? 'badge-resolved' : 'badge-blocked'}">${b.resolved ? 'Resolved' : 'Open'}</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:0.2rem;">
+                            Type: ${b.blocker_type.toUpperCase()} | Severity: ${b.severity} | Quality Specificity: ${b.specificity_score.toFixed(2)}
+                        </div>
+                        ${b.resolved ? `
+                            <div style="font-size:0.72rem; color:var(--accent-emerald); margin-top:0.25rem;">
+                                Resolved by: ${b.resolved_by} (Strength: ${b.evidence_strength})
+                            </div>
+                        ` : `
+                            <button class="pipeline-act-btn" style="margin-top:0.4rem;" onclick="openResolveBlockerModal('${b.id}')">Resolve Blocker</button>
+                        `}
+                    `;
+                    blockersList.appendChild(el);
+                });
+            }
+
+            // Connected Programs matching blockers
+            const progList = document.getElementById('inv-detail-programs');
+            progList.innerHTML = '';
+            
+            // Lookup program matches in graph nodes
+            const matches = graphLinks.filter(l => l.source === `blocker_${id}` || l.type === 'represented_by');
+            if (matches.length === 0) {
+                progList.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No matching university research programs clustered yet.</div>';
+            } else {
+                matches.forEach(m => {
+                    const node = graphNodes.find(n => n.id === m.target);
+                    if (node && node.type === 'program') {
+                        const div = document.createElement('div');
+                        div.className = 'stack-item';
+                        div.innerHTML = `
+                            <strong style="font-size:0.8rem; color:#fff;">${node.label}</strong>
+                            <div style="font-size:0.72rem; color:var(--accent-cyan);">PI: ${node.details.professor_name} (${node.details.university})</div>
+                        `;
+                        progList.appendChild(div);
+                    }
+                });
+            }
+
+            // Load Timeline
+            loadTimeline('investigation', id, 'inv-detail-timeline');
+        }
+
+        // Load chronological histories for timeline widget
+        async function loadTimeline(type, id, containerId) {
+            try {
+                const res = await fetch(`/api/crm/timeline?type=${type}&id=${id}`);
+                const data = await res.json();
+                
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                
+                if (data.length === 0) {
+                    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No events logged in the timeline yet.</div>';
+                    return;
+                }
+                
+                data.forEach(ev => {
+                    const div = document.createElement('div');
+                    div.className = 'timeline-node';
+                    div.innerHTML = `
+                        <div class="timeline-date">${ev.date}</div>
+                        <div class="timeline-title">${ev.title}</div>
+                        <div class="timeline-desc">${ev.description}</div>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (e) {
+                console.error("Error loading timeline", e);
+            }
+        }
+
+        // Add New Investigation
+        function openNewInvModal() {
+            document.getElementById('new-inv-modal').classList.add('show');
+        }
+        function closeNewInvModal() {
+            document.getElementById('new-inv-modal').classList.remove('show');
+        }
+        async function submitNewInvestigation() {
+            const title = document.getElementById('new-inv-title').value.strip();
+            const desc = document.getElementById('new-inv-desc').value.strip();
+            const priority = parseFloat(document.getElementById('new-inv-priority').value);
+            
+            if (!title || !desc) {
+                alert("Title and Goal description are required!");
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/crm/add_investigation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, description: desc, priority })
+                });
+                
+                if (res.ok) {
+                    const newInv = await res.json();
+                    closeNewInvModal();
+                    refreshAllData();
+                    selectInvestigation(newInv.id);
+                } else {
+                    const err = await res.json();
+                    alert(`Error creating investigation: ${err.error}`);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Add blocker with real-time specificity validation check
+        function openNewBlockerModal() {
+            document.getElementById('new-blocker-validation-warning').style.display = 'none';
+            document.getElementById('new-blocker-modal').classList.add('show');
+        }
+        function closeNewBlockerModal() {
+            document.getElementById('new-blocker-modal').classList.remove('show');
+        }
+        async function submitNewBlocker() {
+            if (!selectedInvId) return;
+            
+            const desc = document.getElementById('new-blocker-desc').value.strip();
+            const type = document.getElementById('new-blocker-type').value;
+            const severity = parseFloat(document.getElementById('new-blocker-severity').value);
+            
+            if (!desc) {
+                alert("Blocker description is required!");
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/crm/add_blocker', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        investigation_id: selectedInvId,
+                        description: desc,
+                        blocker_type: type,
+                        severity: severity
+                    })
+                });
+                
+                if (res.ok) {
+                    closeNewBlockerModal();
+                    document.getElementById('new-blocker-desc').value = '';
+                    refreshAllData();
+                } else if (res.status === 422) {
+                    // Specificity check failed
+                    const err = await res.json();
+                    const warning = document.getElementById('new-blocker-validation-warning');
+                    const message = document.getElementById('new-blocker-validation-message');
+                    message.textContent = err.refinement_message;
+                    warning.style.display = 'block';
+                } else {
+                    const err = await res.json();
+                    alert(`Error adding blocker: ${err.error}`);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Resolve Blocker
+        function openResolveBlockerModal(blockerId) {
+            resolvingBlockerId = blockerId;
+            resolvingInvId = selectedInvId;
+            document.getElementById('resolve-blocker-modal').classList.add('show');
+        }
+        function closeResolveBlockerModal() {
+            document.getElementById('resolve-blocker-modal').classList.remove('show');
+        }
+        async function submitResolveBlocker() {
+            const by = document.getElementById('res-blocker-by').value.strip();
+            const strength = document.getElementById('res-blocker-strength').value;
+            const notes = document.getElementById('res-blocker-notes').value.strip();
+            
+            if (!by) {
+                alert("Resolving agent/PI or Paper DOI is required!");
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/crm/resolve_blocker', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        investigation_id: resolvingInvId,
+                        blocker_id: resolvingBlockerId,
+                        resolved_by: by,
+                        evidence_strength: strength,
+                        notes: notes
+                    })
+                });
+                
+                if (res.ok) {
+                    closeResolveBlockerModal();
+                    document.getElementById('res-blocker-by').value = '';
+                    document.getElementById('res-blocker-notes').value = '';
+                    refreshAllData();
+                } else {
+                    const err = await res.json();
+                    alert(`Error resolving blocker: ${err.error}`);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Evidence Board Population (Investigations -> Evidence Board)
+        function loadEvidenceBoard() {
+            const select = document.getElementById('eb-inv-select');
+            if (!select) return;
+            const invId = select.value;
+            if (!invId) return;
+            
+            const inv = investigations.find(i => i.id === invId);
+            if (!inv) return;
+            
+            const neededList = document.getElementById('eb-needed-list');
+            const foundList = document.getElementById('eb-found-list');
+            const missingList = document.getElementById('eb-missing-list');
+            
+            neededList.innerHTML = '';
+            foundList.innerHTML = '';
+            missingList.innerHTML = '';
+            
+            const open = inv.blockers.filter(b => !b.resolved);
+            const resolved = inv.blockers.filter(b => b.resolved);
+            
+            open.forEach(b => {
+                const div = document.createElement('div');
+                div.className = 'eb-item';
+                div.innerHTML = `
+                    <strong>${b.description}</strong>
+                    <div style="font-size:0.7rem; color:var(--accent-rose); margin-top:0.25rem;">
+                        Severity: ${b.severity} | Type: ${b.blocker_type.toUpperCase()}
+                    </div>
+                `;
+                neededList.appendChild(div);
+                
+                // Add to missing capabilities
+                const divM = document.createElement('div');
+                divM.className = 'eb-item';
+                divM.innerHTML = `
+                    <strong>Required: ${b.blocker_type.toUpperCase()}</strong>
+                    <div style="font-size:0.7rem; color:var(--text-secondary); margin-top:0.2rem;">
+                        Needs spec mapping: ${b.description.substring(0, 40)}...
+                    </div>
+                `;
+                missingList.appendChild(divM);
+            });
+            
+            resolved.forEach(b => {
+                const div = document.createElement('div');
+                div.className = 'eb-item';
+                div.innerHTML = `
+                    <strong>${b.description}</strong>
+                    <div style="font-size:0.7rem; color:var(--accent-emerald); margin-top:0.25rem;">
+                        Resolved by: ${b.resolved_by} (Strength: ${b.evidence_strength})
+                    </div>
+                `;
+                foundList.appendChild(div);
+            });
+            
+            if (open.length === 0) neededList.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No open blocker gaps.</div>';
+            if (resolved.length === 0) foundList.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No resolved evidence found yet.</div>';
+            if (open.length === 0) missingList.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No capabilities missing.</div>';
+        }
+
+        // Fetch Outcomes for Outcome Tracker Table
+        async function fetchOutcomes() {
+            try {
+                const res = await fetch('/api/crm/outcomes');
+                const outcomes = await res.json();
+                
+                const tableBody = document.getElementById('outcome-tracker-table-body');
+                tableBody.innerHTML = '';
+                
+                outcomes.forEach(out => {
+                    const tr = document.createElement('tr');
+                    // Find investigation title
+                    const inv = investigations.find(i => i.id === out.investigation_id);
+                    const invTitle = inv ? inv.title : "Unknown Stream";
+                    
+                    tr.innerHTML = `
+                        <td><strong>${out.professor_id}</strong></td>
+                        <td>${invTitle}</td>
+                        <td>${out.suggestion}</td>
+                        <td style="font-family:var(--font-mono); font-size:0.78rem;">${out.contribution_type.toUpperCase()}</td>
+                        <td style="font-weight:700; color:var(--accent-cyan); text-align:center;">${out.impact_score.toFixed(2)}</td>
+                        <td><span style="font-size:0.75rem; color:var(--text-secondary)">${out.resulting_artifact || 'None'}</span></td>
+                        <td style="font-size:0.8rem">${out.implementation_notes}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+                
+                if (outcomes.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted)">No outcome suggestions tested yet.</td></tr>`;
+                }
+            } catch (e) {
+                console.error("Error loading outcomes", e);
+            }
+        }
+
+        // Log Research Outcome Modal Actions
+        function openLogOutcomeModal() {
+            // Fill Selects
+            const selectProf = document.getElementById('outcome-prof-select');
+            selectProf.innerHTML = '';
+            professors.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.openalex_id || p.professor_name;
+                opt.textContent = p.professor_name;
+                selectProf.appendChild(opt);
+            });
+            
+            loadBlockersForOutcomeModal();
+            document.getElementById('outcome-modal').classList.add('show');
+        }
+        function closeLogOutcomeModal() {
+            document.getElementById('outcome-modal').classList.remove('show');
+        }
+        function loadBlockersForOutcomeModal() {
+            const invId = document.getElementById('outcome-inv-select').value;
+            const selectBlocker = document.getElementById('outcome-blocker-select');
+            selectBlocker.innerHTML = '';
+            
+            if (!invId) return;
+            const inv = investigations.find(i => i.id === invId);
+            if (!inv) return;
+            
+            inv.blockers.filter(b => !b.resolved).forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b.id;
+                opt.textContent = b.description;
+                selectBlocker.appendChild(opt);
+            });
+        }
+        async function submitLogOutcome() {
+            const invId = document.getElementById('outcome-inv-select').value;
+            const blockerId = document.getElementById('outcome-blocker-select').value;
+            const profId = document.getElementById('outcome-prof-select').value;
+            const sug = document.getElementById('outcome-suggestion').value.strip();
+            const type = document.getElementById('outcome-contribution-type').value;
+            const notes = document.getElementById('outcome-notes').value.strip();
+            const artifact = document.getElementById('outcome-artifact').value.strip();
+            const impact = parseFloat(document.getElementById('outcome-impact').value);
+            const resolve = document.getElementById('outcome-resolve-blocker').checked;
+            
+            if (!sug || !notes) {
+                alert("Suggestion details and implementation notes are required!");
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/crm/outcomes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        investigation_id: invId,
+                        blocker_id: blockerId,
+                        prof_id: profId,
+                        suggestion: sug,
+                        contribution_type: type,
+                        implementation_notes: notes,
+                        impact_score: impact,
+                        resulting_artifact: artifact,
+                        resolve_blocker: resolve
+                    })
+                });
+                
+                if (res.ok) {
+                    closeLogOutcomeModal();
+                    document.getElementById('outcome-suggestion').value = '';
+                    document.getElementById('outcome-notes').value = '';
+                    document.getElementById('outcome-artifact').value = '';
+                    refreshAllData();
+                } else {
+                    const err = await res.json();
+                    alert(`Error logging outcome: ${err.error}`);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Fetch Discovery Tab Data
+        async function fetchDiscovery() {
+            try {
+                // Fetch PIs first
+                const resProfs = await fetch('/api/crm/professors');
+                const profList = await resProfs.json();
+                professors = profList;
+                
+                // Populate Sidebar list of PIs
+                const sideProfs = document.getElementById('disc-profs-list');
+                sideProfs.innerHTML = '';
+                
+                profList.forEach(p => {
+                    const div = document.createElement('div');
+                    const profKey = p.openalex_id || p.professor_name;
+                    div.className = `stack-item ${profKey === selectedProfId ? 'active' : ''}`;
+                    div.onclick = () => selectProfessor(profKey);
+                    div.innerHTML = `
+                        <strong style="color:#fff; font-size:0.85rem;">${p.professor_name}</strong>
+                        <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem;">
+                            ${p.institution}
+                        </div>
+                    `;
+                    sideProfs.appendChild(div);
+                });
+
+                // Populate Universities sidebar list in Discovery -> Programs
+                const sideUnis = document.getElementById('disc-uni-list');
+                sideUnis.innerHTML = '';
+                
+                const unis = [...new Set(profList.map(p => p.institution).filter(Boolean))];
+                unis.forEach(uni => {
+                    const div = document.createElement('div');
+                    div.className = `stack-item ${uni === selectedUniName ? 'active' : ''}`;
+                    div.onclick = () => selectUniversity(uni);
+                    div.innerHTML = `
+                        <strong style="color:#fff; font-size:0.85rem;">${uni}</strong>
+                    `;
+                    sideUnis.appendChild(div);
+                });
+                
+                // If a university is selected, populate programs list
+                if (selectedUniName) {
+                    selectUniversity(selectedUniName);
+                } else if (unis.length > 0) {
+                    selectUniversity(unis[0]);
+                }
+                
+                if (selectedProfId) {
+                    selectProfessor(selectedProfId);
+                }
+            } catch (e) {
+                console.error("Error loading discovery", e);
+            }
+        }
+
+        // Select University to view Clustered Programs
+        async function selectUniversity(uniName) {
+            selectedUniName = uniName;
+            document.querySelectorAll('#disc-uni-list .stack-item').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('disc-uni-title').textContent = `${uniName} Programs`;
+            
+            const progList = document.getElementById('disc-programs-list');
+            progList.innerHTML = '';
+            
+            // Find programs associated with professors from this university
+            const resGraph = await fetch('/api/crm/unified_graph');
+            const gdata = await resGraph.json();
+            
+            const programs = gdata.nodes.filter(n => n.type === 'program' && n.details.university === uniName);
+            
+            if (programs.length === 0) {
+                progList.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">No research programs clustered for PIs at this institution yet. Run the pipeline to discover.</div>';
+            } else {
+                programs.forEach(prog => {
+                    const div = document.createElement('div');
+                    div.className = 'stack-item';
+                    div.onclick = () => openProgramWorkspace(prog.id, prog.label, prog.details);
+                    div.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="color:#fff; font-size:0.95rem;">${prog.label}</strong>
+                            <span class="badge badge-active">Active Fit</span>
+                        </div>
+                        <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.35rem;">
+                            PI: ${prog.details.professor_name} | Methods: ${prog.details.methods || 'CEBRA, latent mapping'}
+                        </div>
+                        <p style="font-size:0.78rem; color:var(--text-muted); margin-top:0.5rem; line-height:1.4;">
+                            ${prog.details.summary}
+                        </p>
+                    `;
+                    progList.appendChild(div);
+                });
+            }
+        }
+
+        // Dedicated Program detail workspace modal popup
+        function openProgramWorkspace(progId, title, details) {
+            // Build the modal detail content and display
+            const modal = document.createElement('div');
+            modal.className = 'modal-backdrop show';
+            modal.id = 'program-detail-modal';
+            
+            // Timeline for this program
+            const timelineId = `timeline-${progId}`;
+            
+            modal.innerHTML = `
+                <div class="modal-container" style="max-width:800px;">
+                    <div class="modal-header">
+                        <h2>Program Detail Workspace: ${title}</h2>
+                        <button onclick="closeProgramDetailModal()" style="background:transparent; border:none; color:white; font-size:1.2rem; cursor:pointer;">&times;</button>
+                    </div>
+                    <div class="modal-body detail-view-container">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+                            <div>
+                                <label>Summary</label>
+                                <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.25rem;">${details.summary}</p>
+                                
+                                <label style="display:block; margin-top:1rem;">Professor / PI</label>
+                                <p style="font-size:0.85rem; color:#fff; font-weight:700;">${details.professor_name} (${details.university})</p>
+                                
+                                <label style="display:block; margin-top:1rem;">Program-level Claims</label>
+                                <div class="list-stack" style="margin-top:0.25rem;">
+                                    <div class="stack-item" style="font-size:0.8rem;">Emergent neural Latents can capture curriculum dynamics.</div>
+                                </div>
+                            </div>
+                            <div>
+                                <label>Program Timeline</label>
+                                <div class="timeline-container" id="${timelineId}"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-outline" onclick="closeProgramDetailModal()">Close</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Load timeline details
+            loadTimeline('program', progId, timelineId);
+        }
+
+        function closeProgramDetailModal() {
+            const modal = document.getElementById('program-detail-modal');
+            if (modal) modal.remove();
+        }
+
+        // Select Professor memory to view Dossier detail
+        function selectProfessor(id) {
+            selectedProfId = id;
+            document.querySelectorAll('#disc-profs-list .stack-item').forEach(el => el.classList.remove('active'));
+            
+            const prof = professors.find(p => p.openalex_id === id || p.professor_name === id);
+            if (!prof) return;
+            
+            document.getElementById('prof-no-selection').style.display = 'none';
+            document.getElementById('prof-dossier-details').style.display = 'flex';
+            
+            document.getElementById('prof-detail-name').textContent = prof.professor_name;
+            document.getElementById('prof-detail-inst').textContent = prof.institution;
+            
+            const statusBadge = document.getElementById('prof-detail-status');
+            statusBadge.textContent = prof.status;
+            statusBadge.className = `badge ${prof.status === 'in_conversation' ? 'badge-active' : prof.status === 'dormant' ? 'badge-queued' : 'badge-resolved'}`;
+            
+            // Set stats
+            document.getElementById('prof-detail-utility').textContent = Math.round(prof.last_score || 50);
+            
+            // dynamic readiness and accessibility
+            const superSignal = prof.student_supervision_signal || 0.5;
+            const accessScore = Math.round(((superSignal + 0.6) / 2.0) * 100.0);
+            document.getElementById('prof-detail-accessibility').textContent = accessScore;
+            
+            const readiness = Math.round(prof.get_collaboration_readiness_score * 100 || prof.reply_count * 15 + 10);
+            const internProb = Math.round(0.4 * accessScore + 0.6 * readiness);
+            document.getElementById('prof-detail-intern-prob').textContent = `${internProb}%`;
+            
+            // Clustered programs listing
+            const progList = document.getElementById('prof-detail-programs');
+            progList.innerHTML = '';
+            
+            // Connected programs in graph
+            const pId = prof.openalex_id || prof.professor_name;
+            const matches = graphLinks.filter(l => l.target === `prof_${prof.prof_id}` || l.type === 'led_by');
+            if (matches.length === 0) {
+                progList.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No clustered programs.</div>';
+            } else {
+                matches.forEach(m => {
+                    const node = graphNodes.find(n => n.id === m.source);
+                    if (node && node.type === 'program') {
+                        const div = document.createElement('div');
+                        div.className = 'stack-item';
+                        div.innerHTML = `
+                            <strong>${node.label}</strong>
+                            <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.15rem;">${node.details.summary.substring(0, 80)}...</div>
+                        `;
+                        progList.appendChild(div);
+                    }
+                });
+            }
+
+            // Claims list
+            const claimsList = document.getElementById('prof-detail-claims');
+            claimsList.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No extracted claims.</div>';
+            if (prof.resolved_blocker_ids && prof.resolved_blocker_ids.length > 0) {
+                claimsList.innerHTML = '';
+                prof.resolved_blocker_ids.forEach(blockerId => {
+                    const div = document.createElement('div');
+                    div.className = 'stack-item';
+                    div.innerHTML = `<span style="color:var(--accent-emerald)">Resolves Blocker:</span> ${blockerId}`;
+                    claimsList.appendChild(div);
+                });
+            }
+
+            // Timeline
+            loadTimeline('professor', prof.openalex_id || prof.professor_name, 'prof-detail-timeline');
+        }
+
+        // Fetch Outreach Pipeline Kanban board content (Relationships -> Pipeline)
+        async function fetchOutreachPipeline() {
+            try {
+                const res = await fetch('/api/crm/professors');
+                const list = await res.json();
+                
+                const colDrafted = document.getElementById('pipeline-drafted');
+                const colSent = document.getElementById('pipeline-sent');
+                const colReplied = document.getElementById('pipeline-replied');
+                const colTesting = document.getElementById('pipeline-testing');
+                const colDormant = document.getElementById('pipeline-dormant');
+                
+                colDrafted.innerHTML = '';
+                colSent.innerHTML = '';
+                colReplied.innerHTML = '';
+                colTesting.innerHTML = '';
+                colDormant.innerHTML = '';
+                
+                list.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'pipeline-card';
+                    card.innerHTML = `
+                        <div class="pipeline-card-title">${p.professor_name}</div>
+                        <div class="pipeline-card-sub">${p.institution}</div>
+                        <div class="pipeline-actions">
+                            <button class="pipeline-act-btn" onclick="movePIStatus('${p.openalex_id || p.professor_name}', 'sent')">Sent</button>
+                            <button class="pipeline-act-btn" onclick="movePIStatus('${p.openalex_id || p.professor_name}', 'in_conversation')">Conversing</button>
+                            <button class="pipeline-act-btn" onclick="movePIStatus('${p.openalex_id || p.professor_name}', 'dormant')">Dormant</button>
+                        </div>
+                    `;
+                    
+                    if (p.status === 'discovered' || p.status === 'drafted') {
+                        colDrafted.appendChild(card);
+                    } else if (p.status === 'contacted') {
+                        colSent.appendChild(card);
+                    } else if (p.status === 'in_conversation') {
+                        colReplied.appendChild(card);
+                    } else if (p.status === 'resolved') {
+                        colTesting.appendChild(card);
+                    } else if (p.status === 'dormant') {
+                        colDormant.appendChild(card);
+                    }
+                });
+            } catch (e) {
+                console.error("Error loading pipeline", e);
+            }
+        }
+
+        // Move outreach status
+        async function movePIStatus(profId, status) {
+            try {
+                const res = await fetch(`/api/crm/professors/${profId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                if (res.ok) {
+                    refreshAllData();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Tension Studio Logic
+        function loadBlockersForTension() {
+            const invId = document.getElementById('tension-inv').value;
+            const select = document.getElementById('tension-blocker');
+            select.innerHTML = '';
+            
+            if (!invId) return;
+            const inv = investigations.find(i => i.id === invId);
+            if (!inv) return;
+            
+            inv.blockers.filter(b => !b.resolved).forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b.id;
+                opt.textContent = b.description;
+                select.appendChild(opt);
+            });
+            
+            loadProfessorsForTension();
+        }
+
+        function loadProfessorsForTension() {
+            const select = document.getElementById('tension-prof');
+            select.innerHTML = '';
+            professors.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.openalex_id || p.professor_name;
+                opt.textContent = p.professor_name;
+                select.appendChild(opt);
+            });
+            
+            loadPapersForTension();
+        }
+
+        async function loadPapersForTension() {
+            const select = document.getElementById('tension-paper');
+            select.innerHTML = '';
+            const pId = document.getElementById('tension-prof').value;
+            if (!pId) return;
+            
+            // Retrieve programs clustered for this professor from graph
+            const resGraph = await fetch('/api/crm/unified_graph');
+            const gdata = await resGraph.json();
+            
+            const prof = gdata.nodes.find(n => n.id === `prof_${pId.replace(/[^a-zA-Z0-9]/g, '')}` || n.label === pId);
+            const profName = prof ? prof.label : pId;
+            
+            const programs = gdata.nodes.filter(n => n.type === 'program' && n.details.professor_name === profName);
+            programs.forEach(prog => {
+                const opt = document.createElement('option');
+                opt.value = prog.id;
+                opt.textContent = prog.label;
+                select.appendChild(opt);
+            });
+        }
+
+        async function detectTension() {
+            const invId = document.getElementById('tension-inv').value;
+            const blockerId = document.getElementById('tension-blocker').value;
+            const profId = document.getElementById('tension-prof').value;
+            const programId = document.getElementById('tension-paper').value;
+            
+            if (!invId || !blockerId || !profId || !programId) {
+                alert("Please select all options!");
+                return;
+            }
+            
+            // Call Flask tension question builder
+            const detectorBtn = document.getElementById('detect-tension-btn');
+            
+            try {
+                // Fetch the program summary to treat as abstract
+                const resGraph = await fetch('/api/crm/unified_graph');
+                const gdata = await resGraph.json();
+                const progNode = gdata.nodes.find(n => n.id === programId);
+                const title = progNode ? progNode.label : "Clustered Program";
+                const abstract = progNode ? progNode.details.summary : "No summary available.";
+                
+                const res = await fetch('/api/crm/interactions/generate_question', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        investigation_id: invId,
+                        blocker_id: blockerId,
+                        prof_id: profId,
+                        paper_title: title,
+                        paper_abstract: abstract
+                    })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    document.getElementById('ts-our-claim').textContent = data.assumptions_ours || "Ordering changes representation formation.";
+                    document.getElementById('ts-their-claim').textContent = data.assumptions_theirs || "Geometry emerges from neural dynamics.";
+                    document.getElementById('ts-contradiction').textContent = data.tension_description || "Representation geometry may emerge independently of ordering.";
+                    document.getElementById('ts-generated-question').value = data.generated_question || "";
+                    
+                    document.getElementById('tension-progression-view').style.display = 'flex';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function saveTensionInteraction() {
+            const invId = document.getElementById('tension-inv').value;
+            const blockerId = document.getElementById('tension-blocker').value;
+            const profId = document.getElementById('tension-prof').value;
+            const question = document.getElementById('ts-generated-question').value;
+            
+            // Construct a thread and interaction in outreach pipeline
+            try {
+                // 1. Create Thread
+                const resThread = await fetch('/api/crm/threads', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prof_id: profId,
+                        investigation_id: invId,
+                        subject: "Tension-based Collaboration Discussion"
+                    })
+                });
+                
+                if (resThread.ok) {
+                    const thread = await resThread.json();
+                    
+                    // 2. Create Interaction
+                    const resInt = await fetch('/api/crm/interactions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            thread_id: thread.id,
+                            prof_id: profId,
+                            investigation_id: invId,
+                            blocker_id: blockerId,
+                            question: question,
+                            interaction_number: 1
+                        })
+                    });
+                    
+                    if (resInt.ok) {
+                        alert("Interaction draft successfully added to Outreach pipeline!");
+                        refreshAllData();
+                        switchTab('relationships');
+                        switchSubView('relationships', 'pipeline');
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Fetch Self Model Tab data
+        async function fetchSelfModel() {
+            try {
+                const res = await fetch('/api/crm/self_model');
+                const model = await res.json();
+                
+                document.getElementById('self-claims-cnt').textContent = model.structured_claims ? model.structured_claims.length : 0;
+                document.getElementById('self-methods-cnt').textContent = model.methods ? model.methods.length : 0;
+                document.getElementById('self-invs-cnt').textContent = investigations.length;
+                
+                const cList = document.getElementById('self-claims-list');
+                cList.innerHTML = '';
+                if (model.structured_claims && model.structured_claims.length > 0) {
+                    model.structured_claims.forEach(c => {
+                        const div = document.createElement('div');
+                        div.className = 'stack-item';
+                        div.innerHTML = `
+                            <strong>${c.claim}</strong>
+                            <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem;">Method: ${c.method} | Dataset: ${c.dataset}</div>
+                        `;
+                        cList.appendChild(div);
+                    });
+                } else {
+                    cList.innerHTML = '<div style="color:var(--text-muted); font-size:0.8rem;">No self-claims indexed.</div>';
+                }
+                
+                const qList = document.getElementById('self-questions-list');
+                qList.innerHTML = '';
+                if (model.open_questions && model.open_questions.length > 0) {
+                    model.open_questions.forEach(q => {
+                        const div = document.createElement('div');
+                        div.className = 'stack-item';
+                        div.textContent = q.text || q;
+                        qList.appendChild(div);
+                    });
+                } else {
+                    qList.innerHTML = '<div style="color:var(--text-muted); font-size:0.8rem;">No questions listed.</div>';
+                }
+
+                const mList = document.getElementById('self-methods-list');
+                mList.innerHTML = '';
+                if (model.methods && model.methods.length > 0) {
+                    model.methods.forEach(m => {
+                        const div = document.createElement('div');
+                        div.className = 'stack-item';
+                        div.textContent = m;
+                        mList.appendChild(div);
+                    });
+                } else {
+                    mList.innerHTML = '<div style="color:var(--text-muted); font-size:0.8rem;">No methods registered.</div>';
+                }
+
+                const conList = document.getElementById('self-contradictions-list');
+                conList.innerHTML = '';
+                // Gather contradictions from active investigations
+                let contradictionsCount = 0;
+                investigations.forEach(inv => {
+                    inv.contradictions.forEach(c => {
+                        contradictionsCount++;
+                        const div = document.createElement('div');
+                        div.className = 'stack-item';
+                        div.style.borderColor = 'rgba(244,63,94,0.3)';
+                        div.innerHTML = `
+                            <strong>${c.claim_yours.substring(0, 40)}...</strong> vs <strong>${c.claim_external.substring(0, 40)}...</strong>
+                            <div style="font-size:0.72rem; color:var(--accent-rose); margin-top:0.2rem;">Hypothesis: ${c.resolution_hypothesis}</div>
+                        `;
+                        conList.appendChild(div);
+                    });
+                });
+                if (contradictionsCount === 0) {
+                    conList.innerHTML = '<div style="color:var(--text-muted); font-size:0.8rem;">No contradictions registered.</div>';
+                }
+            } catch (e) {
+                console.error("Error loading self model", e);
+            }
+        }
+
+        // Fetch Graph Data for Central force directed D3 visualizer
+        async function fetchGraphData() {
+            try {
+                const res = await fetch('/api/crm/unified_graph');
+                const data = await res.json();
+                
+                graphNodes = data.nodes;
+                graphLinks = data.links;
+                
+                // Initialize D3 graph
+                initD3Graph(data.nodes, data.links);
+            } catch (e) {
+                console.error("Error loading graph data", e);
+            }
+        }
+
+        // Initialize D3 Interactive Force Directed Graph Backbone
+        function initD3Graph(nodes, links) {
+            const svg = d3.select("#graph-canvas");
+            svg.selectAll("*").remove();
+            
+            const wrapper = document.getElementById("graph-view-wrapper");
+            const width = wrapper.clientWidth;
+            const height = wrapper.clientHeight;
+            
+            svg.attr("width", width).attr("height", height);
+            
+            const container = svg.append("g");
+            
+            // Zoom behavior
+            svg.call(d3.zoom().on("zoom", (event) => {
+                container.attr("transform", event.transform);
+            }));
+
+            // Node Color Mapping
+            const colorMap = {
+                investigation: "var(--accent-emerald)",
+                blocker: "var(--accent-rose)",
+                program: "var(--accent-violet)",
+                professor: "#ffffff",
+                claim: "var(--accent-cyan)",
+                outcome: "var(--accent-amber)",
+                paper: "var(--text-muted)"
+            };
+
+            // Setup Simulation
+            const simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+                .force("charge", d3.forceManyBody().strength(-200))
+                .force("center", d3.forceCenter(width / 2, height / 2))
+                .force("collision", d3.forceCollide().radius(35));
+                
+            d3Simulation = simulation;
+
+            // Render Links
+            const link = container.append("g")
+                .selectAll("line")
+                .data(links)
+                .enter().append("line")
+                .attr("stroke", "rgba(255,255,255,0.15)")
+                .attr("stroke-width", 1.5)
+                .attr("marker-end", "url(#arrow)");
+
+            // Render Nodes
+            const node = container.append("g")
+                .selectAll("g")
+                .data(nodes)
+                .enter().append("g")
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended))
+                .on("click", (event, d) => {
+                    event.stopPropagation();
+                    focusNodeNeighborhood(d);
+                })
+                .on("mouseover", (event, d) => {
+                    showGraphTooltip(event, d);
+                })
+                .on("mouseout", () => {
+                    hideGraphTooltip();
+                });
+
+            // Circle representation
+            node.append("circle")
+                .attr("r", d => d.type === 'investigation' ? 14 : 10)
+                .attr("fill", d => colorMap[d.type] || "#ffffff")
+                .attr("stroke", "rgba(255,255,255,0.2)")
+                .attr("stroke-width", 2)
+                .style("filter", d => `drop-shadow(0px 0px 6px ${colorMap[d.type]})`);
+
+            // Text labels
+            node.append("text")
+                .text(d => d.label.length > 20 ? d.label.substring(0, 18) + "..." : d.label)
+                .attr("x", 14)
+                .attr("y", 4)
+                .attr("fill", "var(--text-secondary)")
+                .style("font-size", "0.75rem")
+                .style("pointer-events", "none");
+
+            // Tick Simulation updates
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node
+                    .attr("transform", d => `translate(${d.x}, ${d.y})`);
+            });
+
+            // Drag helpers
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+
+        // Focus node neighborhood: dim unconnected components (Obsidian-style focus)
+        function focusNodeNeighborhood(focusedNode) {
+            const svg = d3.select("#graph-canvas");
+            
+            // Find connected nodes
+            const connectedSet = new Set();
+            connectedSet.add(focusedNode.id);
+            
+            graphLinks.forEach(l => {
+                const sId = typeof l.source === 'object' ? l.source.id : l.source;
+                const tId = typeof l.target === 'object' ? l.target.id : l.target;
+                
+                if (sId === focusedNode.id) connectedSet.add(tId);
+                if (tId === focusedNode.id) connectedSet.add(sId);
+            });
+            
+            // Dim nodes and links
+            svg.selectAll("circle")
+                .attr("opacity", d => connectedSet.has(d.id) ? 1.0 : 0.15);
+                
+            svg.selectAll("text")
+                .attr("opacity", d => connectedSet.has(d.id) ? 1.0 : 0.15);
+                
+            svg.selectAll("line")
+                .attr("stroke", l => {
+                    const sId = typeof l.source === 'object' ? l.source.id : l.source;
+                    const tId = typeof l.target === 'object' ? l.target.id : l.target;
+                    return (sId === focusedNode.id || tId === focusedNode.id) ? "var(--accent-violet)" : "rgba(255,255,255,0.03)";
+                });
+                
+            // Open sidebar workspace link
+            openGraphSidebar(focusedNode);
+        }
+
+        // Reset highlight filters on background click
+        window.addEventListener('click', () => {
+            const svg = d3.select("#graph-canvas");
+            if (svg.empty()) return;
+            
+            svg.selectAll("circle").attr("opacity", 1.0);
+            svg.selectAll("text").attr("opacity", 1.0);
+            svg.selectAll("line").attr("stroke", "rgba(255,255,255,0.15)");
+            
+            closeGraphSidebar();
+        });
+
+        // Tooltip description rendering on mouseover
+        function showGraphTooltip(event, d) {
+            const tooltip = document.getElementById("graph-tooltip");
+            tooltip.innerHTML = `
+                <strong style="color:#fff;">${d.label}</strong>
+                <div style="color:var(--accent-violet); font-size:0.7rem; font-weight:700; margin-top:0.25rem;">${d.type.toUpperCase()}</div>
+                <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem; line-height:1.3;">
+                    ${d.type === 'investigation' ? d.details.description : d.type === 'blocker' ? d.details.description : d.type === 'program' ? d.details.summary : 'Research Node'}
+                </div>
+            `;
+            tooltip.style.left = `${event.pageX + 15}px`;
+            tooltip.style.top = `${event.pageY + 15}px`;
+            tooltip.style.opacity = 1;
+        }
+
+        function hideGraphTooltip() {
+            document.getElementById("graph-tooltip").style.opacity = 0;
+        }
+
+        // Open graph node sidebar workspace details card
+        function openGraphSidebar(node) {
+            const sidebar = document.getElementById("graph-node-details");
+            document.getElementById("graph-sidebar-type").textContent = node.type.toUpperCase();
+            document.getElementById("graph-sidebar-label").textContent = node.label;
+            
+            const content = document.getElementById("graph-sidebar-content");
+            content.innerHTML = '';
+            
+            const actionContainer = document.getElementById("graph-sidebar-action");
+            actionContainer.innerHTML = '';
+            
+            if (node.type === 'investigation') {
+                content.innerHTML = `
+                    <div><strong>Goal:</strong> ${node.details.description}</div>
+                    <div><strong>Status:</strong> ${node.details.status.toUpperCase()}</div>
+                    <div><strong>Priority:</strong> ${node.details.priority.toFixed(2)}</div>
+                `;
+                
+                const btn = document.createElement('button');
+                btn.className = 'btn-primary';
+                btn.textContent = 'Go to Investigation Workspace';
+                btn.onclick = () => {
+                    switchTab('investigations');
+                    switchSubView('investigations', 'workspace');
+                    selectInvestigation(node.details.id);
+                };
+                actionContainer.appendChild(btn);
+                
+            } else if (node.type === 'blocker') {
+                content.innerHTML = `
+                    <div><strong>Description:</strong> ${node.details.description}</div>
+                    <div><strong>Type:</strong> ${node.details.blocker_type.toUpperCase()}</div>
+                    <div><strong>Severity:</strong> ${node.details.severity}</div>
+                    <div><strong>Quality Specificity:</strong> ${node.details.specificity_score.toFixed(2)}</div>
+                `;
+            } else if (node.type === 'program') {
+                content.innerHTML = `
+                    <div><strong>Summary:</strong> ${node.details.summary}</div>
+                    <div><strong>University:</strong> ${node.details.university}</div>
+                    <div><strong>Lead Investigator:</strong> ${node.details.professor_name}</div>
+                `;
+                
+                const btn = document.createElement('button');
+                btn.className = 'btn-primary';
+                btn.textContent = 'Go to Program Details';
+                btn.onclick = () => {
+                    openProgramWorkspace(node.id, node.label, node.details);
+                };
+                actionContainer.appendChild(btn);
+            } else if (node.type === 'professor') {
+                content.innerHTML = `
+                    <div><strong>PI Name:</strong> ${node.details.name}</div>
+                    <div><strong>Institution:</strong> ${node.details.institution}</div>
+                    <div><strong>Status:</strong> ${node.details.status.toUpperCase()}</div>
+                    <div><strong>Internship Probability:</strong> ${node.details.internship_probability}%</div>
+                `;
+                
+                const btn = document.createElement('button');
+                btn.className = 'btn-primary';
+                btn.textContent = 'Open Dossier';
+                btn.onclick = () => {
+                    switchTab('discovery');
+                    switchSubView('discovery', 'profs');
+                    selectProfessor(node.details.id);
+                };
+                actionContainer.appendChild(btn);
+            }
+            
+            sidebar.style.display = 'block';
+        }
+
+        function closeGraphSidebar() {
+            document.getElementById("graph-node-details").style.display = 'none';
+        }
+
+        // Global Search matching and results rendering
+        function initSearch() {
+            const input = document.getElementById("global-search");
+            const dropdown = document.getElementById("search-results-dropdown");
+            
+            input.addEventListener('input', async () => {
+                const query = input.value.trim();
+                if (query.length < 2) {
+                    dropdown.style.display = 'none';
+                    return;
+                }
+                
+                try {
+                    const res = await fetch(`/api/crm/search?q=${encodeURIComponent(query)}`);
+                    const data = await res.json();
+                    
+                    dropdown.innerHTML = '';
+                    if (data.length === 0) {
+                        dropdown.innerHTML = '<div style="padding:0.75rem; color:var(--text-muted); font-size:0.8rem">No matching entities found.</div>';
+                    } else {
+                        data.forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = 'search-result-item';
+                            div.onclick = () => {
+                                dropdown.style.display = 'none';
+                                input.value = '';
+                                navigateToUrl(item.url);
+                            };
+                            div.innerHTML = `
+                                <span class="result-label">${item.label}</span>
+                                <span class="result-sub">${item.sublabel}</span>
+                            `;
+                            dropdown.appendChild(div);
+                        });
+                    }
+                    dropdown.style.display = 'block';
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+            
+            // Hide dropdown when clicking elsewhere
+            window.addEventListener('click', (event) => {
+                if (!input.contains(event.target) && !dropdown.contains(event.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+
+        // Navigate page using hash anchor url route
+        function navigateToUrl(url) {
+            // Parse Hash e.g. #discovery?professor=Jordan
+            if (!url.startsWith('#')) return;
+            
+            const hash = url.substring(1);
+            const parts = hash.split('?');
+            const route = parts[0];
+            const params = {};
+            
+            if (parts[1]) {
+                parts[1].split('&').forEach(p => {
+                    const kv = p.split('=');
+                    params[kv[0]] = kv[1];
+                });
+            }
+            
+            // Trigger tab switches
+            switchTab(route);
+            
+            if (route === 'investigations') {
+                if (params.id) {
+                    switchSubView('investigations', 'workspace');
+                    selectInvestigation(params.id);
+                }
+            } else if (route === 'discovery') {
+                if (params.professor) {
+                    switchSubView('discovery', 'profs');
+                    selectProfessor(params.professor);
+                } else if (params.program) {
+                    switchSubView('discovery', 'programs');
+                    // Find university name from programs and select it
+                    fetch(`/api/crm/unified_graph`).then(res => res.json()).then(gdata => {
+                        const prog = gdata.nodes.find(n => n.id === params.program);
+                        if (prog) {
+                            selectUniversity(prog.details.university).then(() => {
+                                openProgramWorkspace(prog.id, prog.label, prog.details);
+                            });
+                        }
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>

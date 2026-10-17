@@ -1,0 +1,50 @@
+use_default_settings: true
+
+server:
+  secret_key: "change_this_to_a_random_string_at_least_32_chars"
+  limiter: false       # disable rate limiter (local use only)
+  image_proxy: false
+
+ui:
+  default_locale: "en"
+  default_theme: simple
+
+search:
+  safe_search: 0
+  autocomplete: ""
+  default_lang: "en"
+  formats:
+    - html
+    - json          # REQUIRED: enables /search?format=json endpoint
+
+engines:
+  - name: google
+    engine: google
+    shortcut: g
+    use_mobile_ui: false
+
+  - name: bing
+    engine: bing
+    shortcut: bi
+
+  - name: duckduckgo
+    engine: duckduckgo
+    shortcut: ddg
+
+  - name: google scholar
+    engine: google_scholar
+    shortcut: gsc
+
+  - name: semantic scholar
+    engine: semantic_scholar
+    shortcut: ss
+
+  - name: arxiv
+    engine: arxiv
+    shortcut: arx
+    categories: science
+
+  - name: wikipedia
+    engine: wikipedia
+    shortcut: wp
+    base_url: "https://en.wikipedia.org/"

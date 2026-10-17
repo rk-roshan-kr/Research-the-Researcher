@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic & Social Media Dossier - {{ dossier.name }}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- vis.js Network -->
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        :root {
+            --bg-base: #0f172a;
+            --bg-surface: #1e293b;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --bg-glass: rgba(15, 23, 42, 0.6);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --primary: #8b5cf6;
+            --primary-light: #a78bfa;
+            --primary-glow: rgba(139, 92, 246, 0.15);
+            --accent-green: #10b981;
+            --accent-blue: #0ea5e9;
+            --accent-orange: #f59e0b;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Glassmorphism utility card */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: var(--transition);
+        }
+
+        /* HEADER SECTION */
+        header {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .profile-img-container {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+            flex-shrink: 0;
+            background-color: var(--bg-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-img-placeholder {
+            font-size: 64px;
+            color: var(--text-muted);
+        }
+
+        .profile-meta h1 {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            background: linear-gradient(to right, #ffffff, var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .affiliation {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .tag {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .profile-links {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .btn-link:hover {
+            background-color: var(--primary);
+            color: var(--text-primary);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        /* METRICS COUNTER GRID */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .metric-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-md);
+            background-color: var(--primary-glow);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* CORE GRID LAYOUT */
+        .dashboard-body {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-body {
+                grid-template-columns: 1fr;
+            }
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+        }
+
+        /* CHARTS PANEL */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-box {
+            min-height: 300px;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* SOCIAL MEDIA PROFILE CARDS */
+        .social-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .social-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .social-card {
+            border-top: 4px solid var(--primary);
+        }
+
+        .social-card.linkedin {
+            border-top-color: #0077b5;
+        }
+
+        .social-card.twitter {
+            border-top-color: #1da1f2;
+        }
+
+        .social-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .social-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.25rem;
+        }
+
+        .social-icon {
+            font-size: 24px;
+        }
+
+        .linkedin .social-icon { color: #0077b5; }
+        .twitter .social-icon { color: #1da1f2; }
+
+        .social-summary {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            white-space: pre-line; /* Renders paragraphs nicely */
+        }
+
+        .social-topics-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        /* NEWS CARD */
+        .news-card {
+            margin-bottom: 40px;
+            border-left: 4px solid var(--accent-orange);
+        }
+
+        /* PUBLICATIONS SECTION */
+        .publications-section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* FILTERS AND SEARCH */
+        .controls-row {
+            display: flex;
+            gap: 16px;
+            width: 100%;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .search-wrapper {
+            position: relative;
+            flex-grow: 1;
+        }
+
+        .search-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-input {
+            width: 100%;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 12px 16px 12px 48px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-glow);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-filter {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-glass);
+            color: var(--text-secondary);
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .btn-filter.active, .btn-filter:hover {
+            background-color: var(--primary-glow);
+            color: var(--primary-light);
+            border-color: var(--primary-light);
+        }
+
+        /* PUBLICATIONS LIST / COLLAPSIBLE ACCORDION */
+        .publications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .pub-row {
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            background-color: rgba(30, 41, 59, 0.4);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .pub-row:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background-color: rgba(30, 41, 59, 0.6);
+        }
+
+        .pub-summary-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            gap: 20px;
+            user-select: none;
+        }
+
+        .pub-title-section {
+            flex-grow: 1;
+        }
+
+        .pub-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .pub-metadata {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .pub-metadata span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-oa {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-analyzed {
+            background-color: rgba(139, 92, 246, 0.15);
+            color: var(--primary-light);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .pub-citations {
+            text-align: right;
+            flex-shrink: 0;
+            min-width: 80px;
+        }
+
+        .citations-num {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-light);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .citations-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .chevron-icon {
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+
+        .pub-row.open .chevron-icon {
+            transform: rotate(180deg);
+            color: var(--primary-light);
+        }
+
+        /* COLLAPSIBLE DETAIL BODY */
+        .pub-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0, 1, 0, 1); /* CSS transition hack for collapse */
+            background-color: rgba(15, 23, 42, 0.4);
+            border-top: 0 solid var(--border-glass);
+        }
+
+        .pub-row.open .pub-details {
+            max-height: 2000px; /* Big enough to contain details */
+            border-top-width: 1px;
+            transition: max-height 0.8s ease-in-out;
+        }
+
+        .pub-details-content {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .detail-block-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--primary-light);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .analysis-bullets {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .analysis-bullets li {
+            position: relative;
+            padding-left: 20px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .analysis-bullets li::before {
+            content: "•";
+            position: absolute;
+            left: 6px;
+            color: var(--primary-light);
+            font-weight: bold;
+        }
+
+        .pub-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ── COLLABORATION GRAPH SECTION ── */
+        .graph-section {
+            margin-bottom: 40px;
+        }
+
+        #collaboration-network {
+            width: 100%;
+            height: 600px;
+            border-radius: var(--radius-lg);
+            background-color: rgba(15, 23, 42, 0.85);
+            border: 1px solid var(--border-glass);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .graph-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .graph-legend {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .graph-stats-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .graph-stat {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 10px 18px;
+            font-size: 0.9rem;
+        }
+
+        .graph-stat span {
+            color: var(--primary-light);
+            font-weight: 700;
+            font-size: 1.1rem;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* node detail panel (slides in on click) */
+        #node-detail-panel {
+            display: none;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 280px;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            z-index: 10;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+
+        #node-detail-panel h4 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--primary-light);
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 8px;
+        }
+
+        .node-stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            padding: 4px 0;
+        }
+
+        .node-stat-row strong {
+            color: var(--text-primary);
+        }
+
+        #node-papers-list {
+            margin-top: 10px;
+            border-top: 1px solid var(--border-glass);
+            padding-top: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .node-paper-entry {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            line-height: 1.4;
+        }
+
+        .btn-close-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-close-panel:hover { color: var(--text-primary); }
+
+        /* SIDEBAR CO-AUTHORS list */
+        .coauthors-card h3 {
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 12px;
+        }
+
+        .coauthor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.95rem;
+        }
+
+        .coauthor-item:last-child {
+            border-bottom: none;
+        }
+
+        .coauthor-name {
+            color: var(--text-primary);
+        }
+
+        .coauthor-count {
+            background-color: var(--bg-surface);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: var(--primary-light);
+            font-weight: 600;
+        }
+        
+        @keyframes drawPath {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        @media (max-width: 900px) {
+            .academic-profiles-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        .scholar-paper-link {
+            transition: var(--transition);
+        }
+        .scholar-paper-link:hover {
+            color: var(--primary-light) !important;
+            text-decoration: underline !important;
+        }
+        .arxiv-item-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(14, 165, 233, 0.3) !important;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header class="glass-card">
+            <div class="profile-img-container">
+                {% if dossier.photo_url %}
+                <img src="{{ dossier.photo_url }}" alt="{{ dossier.name }}">
+                {% else %}
+                <i class="fa-solid fa-user-graduate profile-img-placeholder"></i>
+                {% endif %}
+            </div>
+            <div class="profile-meta">
+                <h1>{{ dossier.name }}</h1>
+                {% if dossier.affiliation %}
+                <div class="affiliation">
+                    <i class="fa-solid fa-building-columns"></i> {{ dossier.affiliation }}
+                </div>
+                {% endif %}
+                
+                {% if dossier.interests %}
+                <div class="tags-container">
+                    {% for interest in dossier.interests %}
+                    <span class="tag">{{ interest }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="profile-links">
+                    {% if dossier.orcid %}
+                    <a href="https://orcid.org/{{ dossier.orcid }}" target="_blank" class="btn-link">
+                        <i class="fa-brands fa-orcid"></i> ORCID Profile
+                    </a>
+                    {% endif %}
+                    {% if dossier.openalex_id %}
+                    <a href="https://openalex.org/{{ dossier.openalex_id }}" target="_blank" class="btn-link">
+                        <i class="fa-solid fa-graduation-cap"></i> OpenAlex Profile
+                    </a>
+                    {% endif %}
+                    {% if dossier.semantic_scholar_id %}
+                    <a href="https://www.semanticscholar.org/author/{{ dossier.semantic_scholar_id }}" target="_blank" class="btn-link">
+                        <i class="fa-solid fa-book-open"></i> Semantic Scholar
+                    </a>
+                    {% endif %}
+                    {% if dossier.google_scholar_id %}
+                    <a href="https://scholar.google.com/citations?user={{ dossier.google_scholar_id }}" target="_blank" class="btn-link">
+                        <i class="fa-solid fa-search"></i> Google Scholar
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+        <!-- STATS COUNTERS -->
+        <div class="metrics-grid">
+            <div class="glass-card metric-card">
+                <div class="metric-icon"><i class="fa-solid fa-chart-line"></i></div>
+                <div>
+                    <div class="metric-value">{{ metrics.h_index }}</div>
+                    <div class="metric-label">H-Index (Max Combined)</div>
+                </div>
+            </div>
+            <div class="glass-card metric-card">
+                <div class="metric-icon"><i class="fa-solid fa-quote-right"></i></div>
+                <div>
+                    <div class="metric-value">{{ "{:,}".format(metrics.citations) }}</div>
+                    <div class="metric-label">Total Citations</div>
+                </div>
+            </div>
+            <div class="glass-card metric-card">
+                <div class="metric-icon"><i class="fa-solid fa-file-pdf"></i></div>
+                <div>
+                    <div class="metric-value">{{ metrics.publications }}</div>
+                    <div class="metric-label">Publications Count</div>
+                </div>
+            </div>
+            {% if metrics.i10_index_google or metrics.i10_index_openalex %}
+            <div class="glass-card metric-card">
+                <div class="metric-icon"><i class="fa-solid fa-award"></i></div>
+                <div>
+                    <div class="metric-value">{{ [metrics.i10_index_google, metrics.i10_index_openalex]|max }}</div>
+                    <div class="metric-label">i10-Index</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- CHARTS -->
+        <div class="charts-container">
+            <div class="glass-card chart-box">
+                <div class="chart-title"><i class="fa-solid fa-chart-line"></i> Citations History (OpenAlex)</div>
+                <div id="citationsChart" style="width: 100%; height: 250px; position: relative;"></div>
+            </div>
+            <div class="glass-card chart-box">
+                <div class="chart-title"><i class="fa-solid fa-chart-bar"></i> Papers Published by Year</div>
+                <div id="papersChart" style="width: 100%; height: 250px; position: relative;"></div>
+            </div>
+        </div>
+
+        
+        <!-- RESEARCH SYNTHESIS -->
+        {% if synthesis %}
+        <div class="glass-card" style="margin-bottom: 2rem;">
+            <h2><i class="fa-solid fa-brain" style="color: var(--accent);"></i> Intellectual Profile & Trajectory</h2>
+            
+            {% if synthesis.core_focus_areas %}
+            <div style="margin-top: 1rem;">
+                <h4 style="margin-bottom: 8px;">Core Focus Areas</h4>
+                <div class="tags-container">
+                    {% for area in synthesis.core_focus_areas %}
+                    <span class="tag" style="background: rgba(142,45,226,0.2); border: 1px solid var(--accent);">{{ area }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if synthesis.evolution_of_work %}
+            <div style="margin-top: 1.5rem;">
+                <h4 style="margin-bottom: 8px;">Evolution of Work</h4>
+                <p style="color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap; word-break: break-word;">{{ synthesis.evolution_of_work }}</p>
+            </div>
+            {% endif %}
+
+            {% if synthesis.methodological_trends %}
+            <div style="margin-top: 1.5rem;">
+                <h4 style="margin-bottom: 8px;">Methodological Trends</h4>
+                <div class="tags-container">
+                    {% for trend in synthesis.methodological_trends %}
+                    <span class="tag">{{ trend }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if synthesis.overall_impact %}
+            <div style="margin-top: 1.5rem;">
+                <h4 style="margin-bottom: 8px;">Overall Impact</h4>
+                <p style="color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap; word-break: break-word;">{{ synthesis.overall_impact }}</p>
+            </div>
+            {% endif %}
+            
+            {% if synthesis.key_collaborators_or_institutions %}
+            <div style="margin-top: 1.5rem;">
+                <h4 style="margin-bottom: 8px;">Notable Collaborations / Institutions</h4>
+                <div class="tags-container">
+                    {% for collab in synthesis.key_collaborators_or_institutions %}
+                    <span class="tag"><i class="fa-solid fa-building-columns"></i> {{ collab }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <!-- GOOGLE SCHOLAR & ORCID DASHBOARD -->
+        <div class="academic-profiles-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px;">
+            <!-- Google Scholar Panel -->
+            <div class="glass-card" style="border-top: 4px solid var(--accent-orange); display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fa-solid fa-graduation-cap" style="color: var(--accent-orange); font-size: 24px;"></i>
+                            <h3 style="font-family: Outfit, sans-serif; font-size: 1.25rem;">Google Scholar Profile</h3>
+                        </div>
+                        {% if dossier.google_scholar_id %}
+                        <a href="https://scholar.google.com/citations?user={{ dossier.google_scholar_id }}" target="_blank" class="btn-link" style="padding: 4px 10px; font-size: 0.8rem;"><i class="fa-solid fa-external-link"></i> View Profile</a>
+                        {% endif %}
+                    </div>
+                    
+                    {% if dossier.google_scholar_data %}
+                    <div style="display: flex; gap: 16px; margin-bottom: 20px; align-items: center;">
+                        {% if dossier.google_scholar_data.photo_url %}
+                        <img src="{{ dossier.google_scholar_data.photo_url }}" style="width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--accent-orange); object-fit: cover;" alt="{{ dossier.google_scholar_data.name }}">
+                        {% endif %}
+                        <div>
+                            <h4 style="font-family: Outfit, sans-serif; font-size: 1.1rem; color: #fff;">{{ dossier.google_scholar_data.name }}</h4>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px;">{{ dossier.google_scholar_data.affiliation }}</div>
+                        </div>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.9rem; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--border-glass); color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">
+                                <th style="padding: 8px 0; font-weight: 600;">Metric</th>
+                                <th style="padding: 8px 0; font-weight: 600; text-align: right;">All</th>
+                                <th style="padding: 8px 0; font-weight: 600; text-align: right;">Since 2021</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                                <td style="padding: 10px 0; color: var(--text-secondary);">Citations</td>
+                                <td style="padding: 10px 0; text-align: right; font-weight: 700; color: #fff;">{{ dossier.google_scholar_data.metrics.citations.all }}</td>
+                                <td style="padding: 10px 0; text-align: right; font-weight: 700; color: var(--primary-light);">{{ dossier.google_scholar_data.metrics.citations.since_2021 }}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                                <td style="padding: 10px 0; color: var(--text-secondary);">h-index</td>
+                                <td style="padding: 10px 0; text-align: right; font-weight: 700; color: #fff;">{{ dossier.google_scholar_data.metrics.h_index.all }}</td>
+                                <td style="padding: 10px 0; text-align: right; font-weight: 700; color: var(--primary-light);">{{ dossier.google_scholar_data.metrics.h_index.since_2021 }}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                                <td style="padding: 10px 0; color: var(--text-secondary);">i10-index</td>
+                                <td style="padding: 10px 0; text-align: right; font-weight: 700; color: #fff;">{{ dossier.google_scholar_data.metrics.i10_index.all }}</td>
+                                <td style="padding: 10px 0; text-align: right; font-weight: 700; color: var(--primary-light);">{{ dossier.google_scholar_data.metrics.i10_index.since_2021 }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h5 style="font-family: Outfit, sans-serif; font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.5px;">Top Publications on Scholar</h5>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem;">
+                        {% for p in dossier.google_scholar_data.papers[:5] %}
+                        <li style="display: flex; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.02);">
+                            <a href="{{ p.url or '#' }}" target="_blank" style="color: var(--text-secondary); text-decoration: none;" class="scholar-paper-link">{{ p.title }}</a>
+                            <span style="color: var(--primary-light); font-weight: 600; flex-shrink: 0;">{{ p.citations }} cit.</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div style="color: var(--text-secondary); font-size: 0.95rem; text-align: center; padding: 40px 0;">
+                        <i class="fa-solid fa-face-frown" style="font-size: 32px; color: var(--text-muted); margin-bottom: 12px; display: block;"></i>
+                        No Google Scholar data is currently scraper-linked or autodiscovered.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- ORCID Verified Badge Panel -->
+            <div class="glass-card" style="border-top: 4px solid var(--accent-green); display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="fa-brands fa-orcid" style="color: var(--accent-green); font-size: 24px;"></i>
+                            <h3 style="font-family: Outfit, sans-serif; font-size: 1.25rem;">ORCID Verified Badge</h3>
+                        </div>
+                        {% if dossier.orcid %}
+                        <a href="https://orcid.org/{{ dossier.orcid }}" target="_blank" class="btn-link" style="padding: 4px 10px; font-size: 0.8rem;"><i class="fa-solid fa-external-link"></i> Registry Link</a>
+                        {% endif %}
+                    </div>
+                    
+                    {% if dossier.orcid %}
+                    <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: var(--radius-md); padding: 20px; text-align: center; margin-bottom: 20px;">
+                        <i class="fa-solid fa-shield-halved" style="font-size: 48px; color: var(--accent-green); margin-bottom: 12px; display: block;"></i>
+                        <h4 style="font-family: Outfit, sans-serif; font-size: 1.15rem; color: #fff; margin-bottom: 4px;">Verified Digital Identity</h4>
+                        <div style="font-family: monospace; font-size: 1.1rem; color: var(--accent-green); font-weight: 700; letter-spacing: 1px; margin-bottom: 8px;">
+                            {{ dossier.orcid }}
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); max-width: 320px; margin: 0 auto; line-height: 1.4;">
+                            This researcher possesses a verified registry record with ORCID, ensuring unique identification across all global research organizations and publication networks.
+                        </p>
+                    </div>
+                    
+                    <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border-glass);">
+                            <i class="fa-solid fa-check" style="color: var(--accent-green);"></i>
+                            <span>Identity disambiguated from global co-authors</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border-glass);">
+                            <i class="fa-solid fa-check" style="color: var(--accent-green);"></i>
+                            <span>Persistent Open ID URI resolved dynamically</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 0;">
+                            <i class="fa-solid fa-check" style="color: var(--accent-green);"></i>
+                            <span>Auto-linked to institutional credentials</span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div style="color: var(--text-secondary); font-size: 0.95rem; text-align: center; padding: 60px 0;">
+                        <i class="fa-solid fa-ban" style="font-size: 32px; color: var(--text-muted); margin-bottom: 12px; display: block;"></i>
+                        No verified ORCID is available for this researcher.
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.02); border-radius: var(--radius-md); padding: 12px; font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 10px; margin-top: 20px;">
+                    <i class="fa-solid fa-circle-info" style="color: var(--primary-light);"></i>
+                    <span>Verified profiles are verified dynamically across OpenAlex, Crossref, and S2 registry metadata.</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- arXiv PREPRINTS HUB -->
+        {% set arxiv_papers = publications | selectattr('arxiv') | list %}
+        {% if arxiv_papers %}
+        <div class="glass-card" style="margin-bottom: 40px; border-left: 4px solid var(--accent-blue);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fa-solid fa-folder-open" style="color: var(--accent-blue); font-size: 24px;"></i>
+                    <h3 style="font-family: Outfit, sans-serif; font-size: 1.25rem;">arXiv Preprints Hub</h3>
+                </div>
+                <span style="background: rgba(14, 165, 233, 0.1); color: var(--accent-blue); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
+                    {{ arxiv_papers | length }} Preprint(s)
+                </span>
+            </div>
+            
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 20px;">
+                Direct access to preprint versions hosted on arXiv.org prior to peer-review publication. Click "Review details" to view full AI methodology and key contributions below.
+            </p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                {% for paper in arxiv_papers %}
+                <div class="arxiv-item-card" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; transition: var(--transition);">
+                    <div>
+                        <h4 style="font-family: Outfit, sans-serif; font-size: 0.95rem; line-height: 1.4; color: #fff; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" title="{{ paper.title }}">{{ paper.title }}</h4>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 10px; align-items: center;">
+                            <span><i class="fa-solid fa-calendar"></i> {{ paper.year or 'N/A' }}</span>
+                            <span>ID: <strong>{{ paper.arxiv }}</strong></span>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <a href="https://arxiv.org/pdf/{{ paper.arxiv }}" target="_blank" class="btn-link" style="padding: 6px 12px; font-size: 0.8rem; background: rgba(14, 165, 233, 0.1); border-color: rgba(14, 165, 233, 0.2); color: var(--accent-blue); flex-grow: 1; justify-content: center;">
+                            <i class="fa-solid fa-file-pdf"></i> Direct PDF
+                        </a>
+                        <button onclick="scrollToPaper('{{ paper.title | replace("'", "\\'") }}')" class="btn-link" style="padding: 6px 12px; font-size: 0.8rem; flex-grow: 1; justify-content: center; cursor: pointer;">
+                            <i class="fa-solid fa-arrow-down-long"></i> Review details
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- SOCIAL MEDIA DOSSIER -->
+
+        <div class="social-grid">
+            <!-- LinkedIn -->
+            <div class="glass-card social-card linkedin">
+                <div class="social-header">
+                    <div class="social-title">
+                        <i class="fa-brands fa-linkedin social-icon"></i>
+                        <h3>LinkedIn Intelligence</h3>
+                    </div>
+                    {% if social.linkedin.profile_url %}
+                    <a href="{{ social.linkedin.profile_url }}" target="_blank" class="btn-link"><i class="fa-solid fa-external-link"></i> View</a>
+                    {% endif %}
+                </div>
+                <div class="social-summary">
+                    {{ social.linkedin.summary }}
+                </div>
+                {% if social.linkedin.key_topics %}
+                <div class="social-topics-title">Hot Topics:</div>
+                <div class="tags-container">
+                    {% for topic in social.linkedin.key_topics %}
+                    <span class="tag">{{ topic }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Twitter / X -->
+            <div class="glass-card social-card twitter">
+                <div class="social-header">
+                    <div class="social-title">
+                        <i class="fa-brands fa-x-twitter social-icon"></i>
+                        <h3>Twitter/X Intelligence</h3>
+                    </div>
+                    {% if social.twitter.profile_url %}
+                    <a href="{{ social.twitter.profile_url }}" target="_blank" class="btn-link"><i class="fa-solid fa-external-link"></i> View</a>
+                    {% endif %}
+                </div>
+                <div class="social-summary">
+                    {{ social.twitter.summary }}
+                </div>
+                {% if social.twitter.key_topics %}
+                <div class="social-topics-title">Hot Topics:</div>
+                <div class="tags-container">
+                    {% for topic in social.twitter.key_topics %}
+                    <span class="tag">{{ topic }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- RECENT NEWS -->
+        {% if social.recent_news_and_events %}
+        <div class="glass-card news-card">
+            <div class="chart-title" style="color: var(--accent-orange);"><i class="fa-solid fa-newspaper"></i> Recent News & Media Mentions</div>
+            <div class="social-summary" style="margin-bottom:0;">
+                {{ social.recent_news_and_events }}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- COLLABORATION GRAPH -->
+        {% if dossier.collaboration_graph and dossier.collaboration_graph.nodes %}
+        <div class="graph-section glass-card" style="padding: 28px; position: relative;">
+            <div class="section-title" style="font-size:1.5rem; margin-bottom:16px;">
+                <i class="fa-solid fa-diagram-project" style="color: var(--primary-light);"></i>
+                Collaboration & Connection Tree
+            </div>
+
+            <!-- Stats row -->
+            <div class="graph-stats-row">
+                <div class="graph-stat">
+                    <span id="gStat-nodes">{{ dossier.collaboration_graph.nodes | length }}</span> Researcher Nodes
+                </div>
+                <div class="graph-stat">
+                    <span id="gStat-edges">{{ dossier.collaboration_graph.edges | length }}</span> Collaboration Links
+                </div>
+                <div class="graph-stat">
+                    <span id="gStat-depth">
+                        {% if dossier.collaboration_graph.nodes | selectattr('group','eq','depth2') | list | length > 0 %}
+                            2
+                        {% else %}
+                            1
+                        {% endif %}
+                    </span> Depth Levels
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="graph-legend">
+                <span><span class="legend-dot" style="background:#8b5cf6;"></span> Primary Researcher</span>
+                <span><span class="legend-dot" style="background:#0ea5e9;"></span> Direct Co-author</span>
+                <span><span class="legend-dot" style="background:#10b981;"></span> 2nd-degree Co-author</span>
+                <span style="margin-left: auto; font-style: italic;">
+                    Click a node to see shared papers · Scroll to zoom · Drag to pan
+                </span>
+            </div>
+
+            <!-- Graph canvas -->
+            <div style="position: relative;">
+                <div id="collaboration-network"></div>
+
+                <!-- Node detail side-panel -->
+                <div id="node-detail-panel">
+                    <button class="btn-close-panel" onclick="closeNodePanel()"><i class="fa-solid fa-xmark"></i></button>
+                    <h4 id="ndp-name">Researcher</h4>
+                    <div class="node-stat-row"><span>Affiliation</span><strong id="ndp-affil">—</strong></div>
+                    <div class="node-stat-row"><span>H-Index</span><strong id="ndp-hindex">—</strong></div>
+                    <div class="node-stat-row"><span>Citations</span><strong id="ndp-citations">—</strong></div>
+                    <div class="node-stat-row"><span>Publications</span><strong id="ndp-pubs">—</strong></div>
+                    <div class="node-stat-row"><span>Shared Papers</span><strong id="ndp-shared">—</strong></div>
+                    <div id="node-papers-list"></div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="graph-controls" style="margin-top:14px;">
+                <button class="btn-filter" onclick="networkFit()"><i class="fa-solid fa-compress"></i> Fit All</button>
+                <button class="btn-filter" onclick="filterGraphByGroup('all')">Show All</button>
+                <button class="btn-filter" onclick="filterGraphByGroup('depth2')">Hide 2nd-degree</button>
+                <div style="margin-left:auto; font-size:0.85rem; color:var(--text-muted);">
+                    <i class="fa-solid fa-circle-info"></i> Node size reflects collaboration frequency
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- DASHBOARD BODY (Publications + Coauthors) -->
+        <div class="dashboard-body">
+            <!-- Left Panel: Publications List -->
+            <div class="publications-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fa-solid fa-scroll"></i> Publication History & Full Text Analysis</h2>
+                </div>
+
+                <div class="controls-row">
+                    <div class="search-wrapper">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="pubSearch" class="search-input" placeholder="Search by title, authors, journal/venue or keywords...">
+                    </div>
+                    <div class="filter-buttons">
+                        <button class="btn-filter active" onclick="filterPubs('all', event)">All</button>
+                        <button class="btn-filter" onclick="filterPubs('analyzed', event)">Analyzed</button>
+                        <button class="btn-filter" onclick="filterPubs('open_access', event)">Open Access</button>
+                    </div>
+                </div>
+
+                <div class="publications-list" id="pubList">
+                    {% for paper in publications %}
+                    <!-- Publication Row -->
+                    <div class="pub-row" 
+                         data-analyzed="{% if paper.analysis %}true{% else %}false{% endif %}"
+                         data-oa="{% if paper.is_oa %}true{% else %}false{% endif %}"
+                         data-text="{{ paper.title.lower() }} {% for auth in paper.authors %}{{ auth.lower() }} {% endfor %}{{ paper.venue.lower() if paper.venue }}">
+                        
+                        <div class="pub-summary-header" onclick="toggleDetails(this)">
+                            <div class="pub-title-section">
+                                <h4 class="pub-title">{{ paper.title }}</h4>
+                                <div class="pub-metadata">
+                                    <span><i class="fa-solid fa-calendar"></i> {{ paper.year or 'N/A' }}</span>
+                                    {% if paper.venue %}
+                                    <span><i class="fa-solid fa-book"></i> {{ paper.venue }}</span>
+                                    {% endif %}
+                                    {% if paper.is_oa %}
+                                    <span class="badge badge-oa">Open Access</span>
+                                    {% endif %}
+                                    {% if paper.analysis %}
+                                    <span class="badge badge-analyzed">Deep AI Analysis</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="pub-citations">
+                                <div class="citations-num">{{ paper.citations_max }}</div>
+                                <div class="citations-label">Citations</div>
+                            </div>
+                            <div class="chevron-icon"><i class="fa-solid fa-chevron-down"></i></div>
+                        </div>
+
+                        <!-- Dropdown detail drawer -->
+                        <div class="pub-details">
+                            <div class="pub-details-content">
+                                
+                                {% if paper.authors %}
+                                <div>
+                                    <div class="detail-block-title"><i class="fa-solid fa-users"></i> Authors</div>
+                                    <div class="detail-text">{{ paper.authors|join(', ') }}</div>
+                                </div>
+                                {% endif %}
+
+                                {% if paper.analysis %}
+                                    <!-- Gemini deep report -->
+                                    <div>
+                                        <div class="detail-block-title"><i class="fa-solid fa-robot"></i> AI Review Summary</div>
+                                        <div class="detail-text">{{ paper.analysis.summary }}</div>
+                                    </div>
+                                    <div>
+                                        <div class="detail-block-title"><i class="fa-solid fa-flask"></i> Methodology</div>
+                                        <div class="detail-text">{{ paper.analysis.methodology }}</div>
+                                    </div>
+                                    {% if paper.analysis.outcome %}
+                                    <div>
+                                        <div class="detail-block-title"><i class="fa-solid fa-chart-line"></i> Outcome</div>
+                                        <div class="detail-text" style="white-space: pre-wrap; word-break: break-word;">{{ paper.analysis.outcome }}</div>
+                                    </div>
+                                    {% endif %}
+                                    {% if paper.analysis.novelty %}
+                                    <div>
+                                        <div class="detail-block-title"><i class="fa-solid fa-lightbulb"></i> Novelty</div>
+                                        <div class="detail-text" style="white-space: pre-wrap; word-break: break-word;">{{ paper.analysis.novelty }}</div>
+                                    </div>
+                                    {% endif %}
+                                    {% if paper.analysis.patent_filed %}
+                                    <div>
+                                        <div class="detail-block-title" style="color: #d8b4e2;"><i class="fa-solid fa-certificate"></i> Patent Information</div>
+                                        <div class="detail-text" style="white-space: pre-wrap; word-break: break-word;">{{ paper.analysis.patent_details }}</div>
+                                    </div>
+                                    {% endif %}
+                                    {% set conts = paper.analysis.key_contributions or paper.analysis.contributions %}
+                                    {% if conts %}
+                                    <div>
+                                        <div class="detail-block-title"><i class="fa-solid fa-award"></i> Core Scientific Contributions</div>
+                                        <ul class="analysis-bullets">
+                                            {% for cont in conts %}
+                                            <li>{{ cont }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+                                    {% if paper.analysis.limitations %}
+                                    <div>
+                                        <div class="detail-block-title"><i class="fa-solid fa-triangle-exclamation"></i> Limitations & Future Work</div>
+                                        <ul class="analysis-bullets">
+                                            {% for lim in paper.analysis.limitations %}
+                                            <li>{{ lim }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+                                {% elif paper.abstract %}
+                                    <!-- Fallback raw abstract -->
+                                    <div>
+                                        <div class="detail-block-title"><i class="fa-solid fa-file-text"></i> Abstract</div>
+                                        <div class="detail-text">{{ paper.abstract }}</div>
+                                    </div>
+                                {% endif %}
+
+                                {% if paper.tldr %}
+                                <div>
+                                    <div class="detail-block-title"><i class="fa-solid fa-bolt"></i> TL;DR</div>
+                                    <div class="detail-text"><em>{{ paper.tldr }}</em></div>
+                                </div>
+                                {% endif %}
+
+                                <div class="pub-links">
+                                    {% if paper.doi %}
+                                    <a href="https://doi.org/{{ paper.doi }}" target="_blank" class="btn-link">
+                                        <i class="fa-solid fa-external-link"></i> Publisher DOI
+                                    </a>
+                                    {% endif %}
+                                    {% if paper.arxiv %}
+                                    <a href="https://arxiv.org/abs/{{ paper.arxiv }}" target="_blank" class="btn-link">
+                                        <i class="fa-solid fa-link"></i> ArXiv preprint
+                                    </a>
+                                    {% endif %}
+                                    {% if paper.oa_url %}
+                                    <a href="{{ paper.oa_url }}" target="_blank" class="btn-link" style="background-color: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.3); color: var(--accent-green);">
+                                        <i class="fa-solid fa-file-pdf"></i> Download Open Access PDF
+                                    </a>
+                                    {% endif %}
+                                    {% if paper.pdf_path %}
+                                    <a href="pdfs/{{ paper.pdf_path | basename }}" target="_blank" class="btn-link" style="background-color: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.3); color: #3b82f6;">
+                                        <i class="fa-solid fa-file-pdf"></i> View Local PDF
+                                    </a>
+                                    {% endif %}
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Right Panel: Coauthors / Collaborators -->
+            {% if dossier.coauthors %}
+            <div class="glass-card coauthors-card" style="height: fit-content;">
+                <h3><i class="fa-solid fa-users"></i> Top Collaborators</h3>
+                <div>
+                    {% for coauthor in dossier.coauthors %}
+                    <div class="coauthor-item">
+                        <span class="coauthor-name">{{ coauthor.name }}</span>
+                        <span class="coauthor-count">{{ coauthor.papers_count }} papers</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Charts and interactivity scripts -->
+    <script>
+        // --- 1. Collapsible details ---
+        function toggleDetails(header) {
+            const row = header.parentElement;
+            row.classList.toggle('open');
+        }
+
+        // --- 2. Real-time Search and Filtering ---
+        const searchInput = document.getElementById('pubSearch');
+        const pubRows = document.querySelectorAll('.pub-row');
+        let currentFilter = 'all';
+
+        function filterPubs(filterType, event) {
+            currentFilter = filterType;
+            
+            // Toggle active classes on filter buttons
+            const buttons = document.querySelectorAll('.btn-filter');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+
+            applyFiltersAndSearch();
+        }
+
+        searchInput.addEventListener('input', applyFiltersAndSearch);
+
+        function applyFiltersAndSearch() {
+            const searchVal = searchInput.value.toLowerCase();
+
+            pubRows.forEach(row => {
+                const textMatch = row.getAttribute('data-text').includes(searchVal);
+                
+                let filterMatch = true;
+                if (currentFilter === 'analyzed') {
+                    filterMatch = row.getAttribute('data-analyzed') === 'true';
+                } else if (currentFilter === 'open_access') {
+                    filterMatch = row.getAttribute('data-oa') === 'true';
+                }
+
+                if (textMatch && filterMatch) {
+                    row.style.display = 'block';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // --- 3. Custom SVG Chart Render ---
+        // Prepare data from Jinja2
+        const citationYears = [
+            {% for cy in metrics.citation_years %}
+            {{ cy.year }},
+            {% endfor %}
+        ];
+        
+        const citationCounts = [
+            {% for cy in metrics.citation_years %}
+            {{ cy.cited_by_count }},
+            {% endfor %}
+        ];
+
+        const paperCounts = [
+            {% for cy in metrics.citation_years %}
+            {{ cy.works_count }},
+            {% endfor %}
+        ];
+
+        function createTooltip() {
+            let el = document.getElementById('chart-tooltip');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'chart-tooltip';
+                el.style.position = 'absolute';
+                el.style.padding = '8px 12px';
+                el.style.background = 'rgba(15, 23, 42, 0.95)';
+                el.style.border = '1px solid var(--border-glass)';
+                el.style.borderRadius = '8px';
+                el.style.pointerEvents = 'none';
+                el.style.opacity = '0';
+                el.style.transition = 'opacity 0.1s ease-in-out';
+                el.style.zIndex = '1000';
+                el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.5)';
+                document.body.appendChild(el);
+            }
+            return el;
+        }
+
+        function renderCitationsChart() {
+            const container = document.getElementById('citationsChart');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const width = container.clientWidth;
+            const height = container.clientHeight || 250;
+            const padding = { top: 20, right: 30, bottom: 30, left: 50 };
+            
+            if (citationYears.length === 0) {
+                container.innerHTML = '<div style="color:var(--text-secondary); text-align:center; padding-top:100px;">No data available</div>';
+                return;
+            }
+            
+            const maxVal = Math.max(...citationCounts, 5);
+            
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '100%');
+            svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            svg.style.overflow = 'visible';
+            
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            
+            const linearGrad = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            linearGrad.setAttribute('id', 'citationsGrad');
+            linearGrad.setAttribute('x1', '0');
+            linearGrad.setAttribute('y1', '0');
+            linearGrad.setAttribute('x2', '0');
+            linearGrad.setAttribute('y2', '1');
+            linearGrad.innerHTML = `
+                <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.0"/>
+            `;
+            defs.appendChild(linearGrad);
+            
+            const glowFilter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+            glowFilter.setAttribute('id', 'glow');
+            glowFilter.innerHTML = `
+                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            `;
+            defs.appendChild(glowFilter);
+            
+            svg.appendChild(defs);
+            
+            const chartWidth = width - padding.left - padding.right;
+            const chartHeight = height - padding.top - padding.bottom;
+            
+            const getX = (index) => padding.left + (index / (citationYears.length - 1 || 1)) * chartWidth;
+            const getY = (val) => padding.top + chartHeight - (val / maxVal) * chartHeight;
+            
+            const gridCount = 5;
+            for (let i = 0; i <= gridCount; i++) {
+                const yVal = (maxVal / gridCount) * i;
+                const yPos = getY(yVal);
+                
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', padding.left);
+                line.setAttribute('y1', yPos);
+                line.setAttribute('x2', padding.left + chartWidth);
+                line.setAttribute('y2', yPos);
+                line.setAttribute('stroke', 'rgba(255, 255, 255, 0.05)');
+                line.setAttribute('stroke-width', '1');
+                svg.appendChild(line);
+                
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', padding.left - 10);
+                label.setAttribute('y', yPos + 4);
+                label.setAttribute('fill', '#94a3b8');
+                label.setAttribute('font-size', '10px');
+                label.setAttribute('text-anchor', 'end');
+                label.textContent = Math.round(yVal);
+                svg.appendChild(label);
+            }
+            
+            const step = Math.max(1, Math.floor(citationYears.length / 8));
+            citationYears.forEach((year, idx) => {
+                if (idx % step === 0 || idx === citationYears.length - 1) {
+                    const xPos = getX(idx);
+                    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    label.setAttribute('x', xPos);
+                    label.setAttribute('y', padding.top + chartHeight + 20);
+                    label.setAttribute('fill', '#94a3b8');
+                    label.setAttribute('font-size', '10px');
+                    label.setAttribute('text-anchor', 'middle');
+                    label.textContent = year;
+                    svg.appendChild(label);
+                }
+            });
+            
+            let pathD = '';
+            let areaD = '';
+            
+            citationCounts.forEach((val, idx) => {
+                const x = getX(idx);
+                const y = getY(val);
+                if (idx === 0) {
+                    pathD = `M ${x} ${y}`;
+                    areaD = `M ${x} ${padding.top + chartHeight} L ${x} ${y}`;
+                } else {
+                    pathD += ` L ${x} ${y}`;
+                    areaD += ` L ${x} ${y}`;
+                }
+                if (idx === citationCounts.length - 1) {
+                    areaD += ` L ${x} ${padding.top + chartHeight} Z`;
+                }
+            });
+            
+            const areaPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            areaPath.setAttribute('d', areaD);
+            areaPath.setAttribute('fill', 'url(#citationsGrad)');
+            svg.appendChild(areaPath);
+            
+            const linePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            linePath.setAttribute('d', pathD);
+            linePath.setAttribute('fill', 'none');
+            linePath.setAttribute('stroke', '#8b5cf6');
+            linePath.setAttribute('stroke-width', '3');
+            linePath.setAttribute('filter', 'url(#glow)');
+            linePath.style.strokeDasharray = '1000';
+            linePath.style.strokeDashoffset = '1000';
+            linePath.style.animation = 'drawPath 2s ease-out forwards';
+            svg.appendChild(linePath);
+            
+            const tooltip = createTooltip();
+            
+            citationCounts.forEach((val, idx) => {
+                const x = getX(idx);
+                const y = getY(val);
+                
+                const colWidth = chartWidth / (citationCounts.length - 1 || 1);
+                const hoverRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                hoverRect.setAttribute('x', x - colWidth / 2);
+                hoverRect.setAttribute('y', padding.top);
+                hoverRect.setAttribute('width', colWidth);
+                hoverRect.setAttribute('height', chartHeight);
+                hoverRect.setAttribute('fill', 'transparent');
+                hoverRect.style.cursor = 'pointer';
+                
+                const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                dot.setAttribute('cx', x);
+                dot.setAttribute('cy', y);
+                dot.setAttribute('r', '4');
+                dot.setAttribute('fill', '#8b5cf6');
+                dot.setAttribute('stroke', '#f8fafc');
+                dot.setAttribute('stroke-width', '1.5');
+                dot.style.transition = 'all 0.15s ease-in-out';
+                svg.appendChild(dot);
+                
+                hoverRect.addEventListener('mouseenter', () => {
+                    dot.setAttribute('r', '7');
+                    dot.setAttribute('fill', '#a78bfa');
+                    
+                    const rect = container.getBoundingClientRect();
+                    tooltip.style.opacity = '1';
+                    tooltip.innerHTML = `
+                        <div style="font-weight:600; color:#fff; font-family:Outfit,sans-serif;">${citationYears[idx]}</div>
+                        <div style="color:var(--primary-light); font-size:14px; margin-top:2px;">Citations: <strong>${val.toLocaleString()}</strong></div>
+                    `;
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    tooltip.style.left = `${rect.left + window.scrollX + x - tooltipRect.width/2}px`;
+                    tooltip.style.top = `${rect.top + window.scrollY + y - tooltipRect.height - 10}px`;
+                });
+                
+                hoverRect.addEventListener('mouseleave', () => {
+                    dot.setAttribute('r', '4');
+                    dot.setAttribute('fill', '#8b5cf6');
+                    tooltip.style.opacity = '0';
+                });
+                
+                svg.appendChild(hoverRect);
+            });
+            
+            container.appendChild(svg);
+        }
+
+        function renderPapersChart() {
+            const container = document.getElementById('papersChart');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const width = container.clientWidth;
+            const height = container.clientHeight || 250;
+            const padding = { top: 20, right: 30, bottom: 30, left: 40 };
+            
+            if (citationYears.length === 0) {
+                container.innerHTML = '<div style="color:var(--text-secondary); text-align:center; padding-top:100px;">No data available</div>';
+                return;
+            }
+            
+            const maxVal = Math.max(...paperCounts, 2);
+            
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '100%');
+            svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            svg.style.overflow = 'visible';
+            
+            const chartWidth = width - padding.left - padding.right;
+            const chartHeight = height - padding.top - padding.bottom;
+            
+            const barWidth = (chartWidth / citationYears.length) * 0.7;
+            const gap = (chartWidth / citationYears.length) * 0.3;
+            
+            const getX = (index) => padding.left + index * (barWidth + gap) + gap/2;
+            const getY = (val) => padding.top + chartHeight - (val / maxVal) * chartHeight;
+            
+            const gridCount = 4;
+            for (let i = 0; i <= gridCount; i++) {
+                const yVal = (maxVal / gridCount) * i;
+                const yPos = getY(yVal);
+                
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', padding.left);
+                line.setAttribute('y1', yPos);
+                line.setAttribute('x2', padding.left + chartWidth);
+                line.setAttribute('y2', yPos);
+                line.setAttribute('stroke', 'rgba(255, 255, 255, 0.05)');
+                line.setAttribute('stroke-width', '1');
+                svg.appendChild(line);
+                
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', padding.left - 10);
+                label.setAttribute('y', yPos + 4);
+                label.setAttribute('fill', '#94a3b8');
+                label.setAttribute('font-size', '10px');
+                label.setAttribute('text-anchor', 'end');
+                label.textContent = Math.round(yVal);
+                svg.appendChild(label);
+            }
+            
+            const step = Math.max(1, Math.floor(citationYears.length / 8));
+            citationYears.forEach((year, idx) => {
+                if (idx % step === 0 || idx === citationYears.length - 1) {
+                    const xPos = getX(idx) + barWidth / 2;
+                    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    label.setAttribute('x', xPos);
+                    label.setAttribute('y', padding.top + chartHeight + 20);
+                    label.setAttribute('fill', '#94a3b8');
+                    label.setAttribute('font-size', '10px');
+                    label.setAttribute('text-anchor', 'middle');
+                    label.textContent = year;
+                    svg.appendChild(label);
+                }
+            });
+            
+            const tooltip = createTooltip();
+            
+            paperCounts.forEach((val, idx) => {
+                const x = getX(idx);
+                const y = getY(val);
+                const barHeight = padding.top + chartHeight - y;
+                
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', x);
+                rect.setAttribute('y', padding.top + chartHeight);
+                rect.setAttribute('width', barWidth);
+                rect.setAttribute('height', '0');
+                rect.setAttribute('fill', '#0ea5e9');
+                rect.setAttribute('rx', '3');
+                rect.style.transition = 'all 0.15s ease-in-out';
+                
+                setTimeout(() => {
+                    rect.setAttribute('y', y);
+                    rect.setAttribute('height', barHeight);
+                }, 50 + idx * 20);
+                
+                rect.addEventListener('mouseenter', () => {
+                    rect.setAttribute('fill', '#38bdf8');
+                    const cRect = container.getBoundingClientRect();
+                    tooltip.style.opacity = '1';
+                    tooltip.innerHTML = `
+                        <div style="font-weight:600; color:#fff; font-family:Outfit,sans-serif;">${citationYears[idx]}</div>
+                        <div style="color:var(--accent-blue); font-size:14px; margin-top:2px;">Papers Published: <strong>${val}</strong></div>
+                    `;
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    tooltip.style.left = `${cRect.left + window.scrollX + x + barWidth/2 - tooltipRect.width/2}px`;
+                    tooltip.style.top = `${cRect.top + window.scrollY + y - tooltipRect.height - 10}px`;
+                });
+                
+                rect.addEventListener('mouseleave', () => {
+                    rect.setAttribute('fill', '#0ea5e9');
+                    tooltip.style.opacity = '0';
+                });
+                
+                svg.appendChild(rect);
+            });
+            
+            container.appendChild(svg);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderCitationsChart();
+            renderPapersChart();
+        });
+        
+        window.addEventListener('resize', () => {
+            renderCitationsChart();
+            renderPapersChart();
+        });
+
+        // --- 4. Smooth Scroll for arXiv preprints ---
+        function scrollToPaper(title) {
+            const pubList = document.getElementById('pubList');
+            if (!pubList) return;
+            
+            const rows = pubList.querySelectorAll('.pub-row');
+            let targetRow = null;
+            
+            rows.forEach(row => {
+                const rowTitleEl = row.querySelector('.pub-title');
+                if (rowTitleEl && rowTitleEl.textContent.trim().toLowerCase() === title.toLowerCase()) {
+                    targetRow = row;
+                }
+            });
+            
+            if (targetRow) {
+                targetRow.classList.add('open');
+                
+                targetRow.style.borderColor = 'var(--primary-light)';
+                targetRow.style.boxShadow = '0 0 15px var(--primary-glow)';
+                
+                setTimeout(() => {
+                    targetRow.style.borderColor = '';
+                    targetRow.style.boxShadow = '';
+                }, 2000);
+                
+                targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    </script>
+
+    {% if dossier.collaboration_graph and dossier.collaboration_graph.nodes %}
+    <script>
+        // ── vis.js Collaboration Network ──────────────────────────────────────
+        (function () {
+            const RAW_NODES = {{ dossier.collaboration_graph.nodes | tojson(indent=2) }};
+            const RAW_EDGES = {{ dossier.collaboration_graph.edges | tojson(indent=2) }};
+
+            // Build edge lookup: nodeId → list of shared paper lists
+            const edgeMap = {};
+            RAW_EDGES.forEach(e => {
+                if (e.from) {
+                    edgeMap[e.from] = edgeMap[e.from] || { count: 0, papers: [] };
+                    (e.shared_papers || []).forEach(p => {
+                        if (!edgeMap[e.from].papers.some(existing => existing.title === p.title)) {
+                            edgeMap[e.from].papers.push(p);
+                        }
+                    });
+                    edgeMap[e.from].count = edgeMap[e.from].papers.length;
+                }
+                if (e.to) {
+                    edgeMap[e.to] = edgeMap[e.to] || { count: 0, papers: [] };
+                    (e.shared_papers || []).forEach(p => {
+                        if (!edgeMap[e.to].papers.some(existing => existing.title === p.title)) {
+                            edgeMap[e.to].papers.push(p);
+                        }
+                    });
+                    edgeMap[e.to].count = edgeMap[e.to].papers.length;
+                }
+            });
+
+            // Color groups
+            const groupColors = {
+                root:     { background: '#8b5cf6', border: '#a78bfa', highlight: { background: '#a78bfa', border: '#c4b5fd' } },
+                coauthor: { background: '#0ea5e9', border: '#38bdf8', highlight: { background: '#38bdf8', border: '#7dd3fc' } },
+                depth2:   { background: '#10b981', border: '#34d399', highlight: { background: '#34d399', border: '#6ee7b7' } },
+            };
+
+            const visNodes = new vis.DataSet(RAW_NODES.map(n => ({
+                id: n.id,
+                label: n.label.length > 20 ? n.label.split(' ').slice(0, 2).join(' ') : n.label,
+                fullLabel: n.label,
+                title: n.title,
+                value: n.value || 10,
+                color: groupColors[n.group] || groupColors.coauthor,
+                font: { color: '#f8fafc', size: n.group === 'root' ? 18 : 13, face: 'Inter' },
+                borderWidth: n.group === 'root' ? 3 : 1.5,
+                shape: n.group === 'root' ? 'star' : 'dot',
+                // stash extra data
+                _data: n,
+            })));
+
+            const visEdges = new vis.DataSet(RAW_EDGES.map(e => ({
+                from: e.from,
+                to: e.to,
+                value: Math.max(1, e.shared_count || 1),
+                title: e.title,
+                color: { color: 'rgba(139,92,246,0.35)', highlight: 'rgba(167,139,250,0.8)', hover: 'rgba(167,139,250,0.6)' },
+                smooth: { type: 'dynamic' },
+                hoverWidth: 3,
+            })));
+
+            const container = document.getElementById('collaboration-network');
+            const network = new vis.Network(container, { nodes: visNodes, edges: visEdges }, {
+                physics: {
+                    enabled: true,
+                    barnesHut: {
+                        gravitationalConstant: -18000,
+                        centralGravity: 0.3,
+                        springLength: 160,
+                        springConstant: 0.04,
+                        damping: 0.09,
+                    },
+                    stabilization: { iterations: 300, fit: true },
+                },
+                interaction: {
+                    hover: true,
+                    tooltipDelay: 150,
+                    navigationButtons: false,
+                    keyboard: false,
+                    zoomView: true,
+                },
+                edges: {
+                    scaling: { min: 1, max: 8 },
+                    arrows: { to: { enabled: false } },
+                    smooth: { enabled: true },
+                },
+                nodes: {
+                    scaling: { min: 14, max: 55, label: { enabled: false } },
+                    shadow: { enabled: true, size: 8, color: 'rgba(0,0,0,0.4)' },
+                },
+                layout: { improvedLayout: false },
+            });
+
+            // ── Node click → detail panel ─────────────────────────────────────
+            network.on('click', function (params) {
+                if (!params.nodes.length) {
+                    closeNodePanel();
+                    return;
+                }
+                const nodeId = params.nodes[0];
+                const node = visNodes.get(nodeId);
+                const d = node._data || {};
+                const edgeInfo = edgeMap[nodeId] || { count: 0, papers: [] };
+
+                document.getElementById('ndp-name').textContent = d.label || node.fullLabel || '';
+                document.getElementById('ndp-affil').textContent = d.affiliation || '—';
+                document.getElementById('ndp-hindex').textContent = d.h_index ?? '—';
+                document.getElementById('ndp-citations').textContent = d.citations != null ? d.citations.toLocaleString() : '—';
+                document.getElementById('ndp-pubs').textContent = d.publications ?? '—';
+
+                const sharedCount = edgeInfo.count || 0;
+                document.getElementById('ndp-shared').textContent = sharedCount > 0 ? sharedCount : (d.group === 'root' ? 'Root node' : '—');
+
+                const paperList = document.getElementById('node-papers-list');
+                paperList.innerHTML = '';
+                if (edgeInfo.papers && edgeInfo.papers.length > 0) {
+                    edgeInfo.papers.slice(0, 10).forEach(p => {
+                        const div = document.createElement('div');
+                        div.className = 'node-paper-entry';
+                        const yr = p.year ? ` (${p.year})` : '';
+                        const cit = p.citations ? ` — ${p.citations} cit.` : '';
+                        div.textContent = p.title + yr + cit;
+                        paperList.appendChild(div);
+                    });
+                }
+
+                document.getElementById('node-detail-panel').style.display = 'block';
+            });
+
+            // ── Expose globals for buttons ────────────────────────────────────
+            window._network = network;
+            window._visNodes = visNodes;
+            window._visEdges = visEdges;
+            window._rawNodes = RAW_NODES;
+        })();
+
+        function networkFit() {
+            if (window._network) window._network.fit({ animation: { duration: 600, easingFunction: 'easeInOutQuad' } });
+        }
+
+        function closeNodePanel() {
+            document.getElementById('node-detail-panel').style.display = 'none';
+        }
+
+        function filterGraphByGroup(mode) {
+            if (!window._visNodes || !window._rawNodes) return;
+            const hideDepth2 = (mode === 'depth2');
+            
+            const depth2NodeIds = new Set();
+            window._rawNodes.forEach(n => {
+                const hidden = hideDepth2 && n.group === 'depth2';
+                window._visNodes.update({ id: n.id, hidden: hidden });
+                if (hidden) {
+                    depth2NodeIds.add(n.id);
+                }
+            });
+            
+            if (window._visEdges) {
+                window._visEdges.getIds().forEach(eid => {
+                    const e = window._visEdges.get(eid);
+                    if (e) {
+                        const hideEdge = hideDepth2 && (depth2NodeIds.has(e.from) || depth2NodeIds.has(e.to));
+                        window._visEdges.update({ id: eid, hidden: hideEdge });
+                    }
+                });
+            }
+            networkFit();
+        }
+    </script>
+    {% endif %}
+</body>
+</html>
