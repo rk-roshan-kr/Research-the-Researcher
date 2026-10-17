@@ -1724,6 +1724,7 @@ def resolve_crm_blocker():
         return jsonify({"error": str(e)}), 500
 
 
+from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
 
 class EmailReplyIntelligence(BaseModel):

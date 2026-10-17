@@ -213,7 +213,10 @@ class SemanticIndex:
         from academic_pipeline.self_model import get_embedder_by_name
         try:
             embedder = get_embedder_by_name(self.MODEL_NAME)
-            self.DIM = embedder.get_sentence_embedding_dimension()
+            if hasattr(embedder, "get_embedding_dimension"):
+                self.DIM = embedder.get_embedding_dimension()
+            else:
+                self.DIM = embedder.get_sentence_embedding_dimension()
         except Exception:
             self.DIM = 1024
         logger.info(f"FAISS dynamic dimension set to: {self.DIM}")

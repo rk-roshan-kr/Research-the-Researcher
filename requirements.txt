@@ -44,6 +44,10 @@ markdown>=3.5.0
 # ── Data Structures ───────────────────────────────────────────────────────────
 sortedcontainers>=2.4.0     # SortedList / SortedDict
 
+# ── Web App / API ────────────────────────────────────────────────────────────
+flask>=3.0.0                # Web dashboard server
+
 # ── Utilities ────────────────────────────────────────────────────────────────
 python-dotenv>=1.0.0        # Load .env files for optional config
 tenacity>=8.2.3             # Retry logic with exponential backoff
+
