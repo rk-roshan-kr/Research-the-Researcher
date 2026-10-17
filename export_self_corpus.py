@@ -120,7 +120,7 @@ def _fetch_openalex_by_id(openalex_id: str, limit: int = 100) -> list[dict]:
         "filter":   f"author.id:{openalex_id}",
         "select":   "title,abstract_inverted_index,doi,publication_year,cited_by_count",
         "per-page": min(limit, 200),
-        "mailto":   "research@earthos.ai",
+        "mailto":   os.environ.get("OPENALEX_EMAIL", "researcher@example.com"),
     }
     try:
         resp = requests.get(url, params=params, timeout=25)
